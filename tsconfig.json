@@ -1,0 +1,30 @@
+{
+  "compilerOptions": {
+    "jsx": "react",
+    "target": "ES2022",
+    "baseUrl": "./src",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "strict": true,
+    "downlevelIteration": true,
+    "lib": [
+      "DOM",
+      "ESNext"
+    ],
+    "paths": {
+      "mods/*": [
+        "mods/*"
+      ],
+      "libs/*": [
+        "libs/*"
+      ],
+      "tests/*": [
+        "tests/*"
+      ],
+    }
+  },
+  "include": [
+    "./src/**/**.ts",
+    "./src/**/**.tsx",
+  ],
+}
