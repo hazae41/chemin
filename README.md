@@ -298,7 +298,11 @@ function Page() {
   const [search, setSearch] = useSearchAsKeyValueState(path)
 
   const onClick = useCallback(() => {
-    
-  }, [])
+    setSearch(search => ({ ...search, key: "value" }))
+  }, [setSearch])
+
+  return <button onClick={onClick}>
+    Click me
+  </button>
 }
 ```
