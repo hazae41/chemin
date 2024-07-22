@@ -251,16 +251,10 @@ export function useSearchAsKeyValueState<T extends Record<string, Optional<strin
 
   const [pending, setPending] = useState<T>(current)
 
-  /**
-   * Immediatly update the pending state when the current state changes
-   */
   useMemo(() => {
     setPending(current)
   }, [current])
 
-  /**
-   * Lazily update the current state when the pending state differs
-   */
   useEffect(() => {
     if (pending === current)
       return
@@ -273,7 +267,6 @@ export function useSearchAsKeyValueState<T extends Record<string, Optional<strin
       return
 
     location.replace(path.go(url))
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pending])
 
   return [current, setPending] as const
