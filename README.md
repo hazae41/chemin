@@ -35,6 +35,56 @@ This allows creating dialogs and subdialogs with things on left and right
 
 ## Usage
 
+### Hash-based path
+
+You can use `HashPathProvider` to provide a hash-based path for your app
+
+```tsx
+import { HashPathProvider } from "@hazae41/chemin"
+
+export function App(props: ChildrenProps) {
+  const { children } = props
+
+  return <HashPathProvider>
+    <Router />
+  </HashPathProvider>
+}
+```
+
+e.g. https://example.com/app/#/this/is/the/pathname
+
+```tsx
+console.log(usePathContext().unwrap().url.pathname)
+```
+
+This will display `/this/is/the/pathname`
+
+### Root-based path
+
+You can also use `RootPathProvider` to provide root-based path for your app
+
+This uses the modern [Navigation API](https://developer.mozilla.org/en-US/docs/Web/API/Navigation_API) that only works on some browsers for now 
+
+```tsx
+import { RootPathProvider } from "@hazae41/chemin"
+
+export function App(props: ChildrenProps) {
+  const { children } = props
+
+  return <RootPathProvider>
+    <Router />
+  </RootPathProvider>
+}
+```
+
+e.g. https://example.com/this/is/the/pathname
+
+```tsx
+console.log(usePathContext().unwrap().url.pathname)
+```
+
+This will display `/this/is/the/pathname`
+
 ### Simple router
 
 You can route things with `usePathContext()`
@@ -43,9 +93,9 @@ You can route things with `usePathContext()`
 import { usePathContext } from "@hazae41/chemin"
 
 function Router() {
-  const { url } = usePathContext().unwrap()
+  const path = usePathContext().unwrap()
 
-  if (url.pathname === "/home")
+  if (path.url.pathname === "/home")
     return <HomePage />
 
   return <NotFoundPage />
@@ -82,7 +132,7 @@ function Router() {
 
 ### Inline router
 
-You can route things inside a component
+You can also route things inside a component
 
 ```tsx
 import { usePathContext } from "@hazae41/chemin"
@@ -173,7 +223,7 @@ function HomePage() {
 }
 ```
 
-### Search-based subrouter
+### Search-based subpath
 
 You can create search-based subroutes
 
@@ -226,7 +276,7 @@ function HomePage() {
 
 All providers of `PathContext` are also providers of `CloseContext`
 
-You can use the provided `CloseContext` to go back to the root of the current (sub)path
+You can use the provided `CloseContext` to go back to the root of the current path
 
 e.g. `https://example.com/home/#/aaa/bbb/ccc` -> `https://example.com/home`
 

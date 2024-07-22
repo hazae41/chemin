@@ -5,7 +5,7 @@ import { ChildrenProps } from "libs/react/index.js"
 import { CloseContext } from "mods/close/index.js"
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react"
 
-export function hash(pathOrUrl: string | URL) {
+export function hashAsUrl(pathOrUrl: string | URL) {
   const url = new URL(pathOrUrl, location.href)
   const hash = url.hash.slice(1)
 
@@ -15,7 +15,7 @@ export function hash(pathOrUrl: string | URL) {
   return new URL(url.origin)
 }
 
-export function search(pathOrUrl: string | URL, key: string) {
+export function searchAsUrl(pathOrUrl: string | URL, key: string) {
   const url = new URL(pathOrUrl, location.href)
   const value = url.searchParams.get(key)
 
@@ -50,16 +50,58 @@ export function usePathContext() {
   return Option.wrap(useContext(PathContext))
 }
 
-export function HashPathProvider(props: ChildrenProps) {
+/**
+ * Root-based path provider using the modern Navigation API
+ * @param props 
+ * @returns 
+ */
+export function RootPathProvider(props: ChildrenProps) {
   const { children } = props
 
   const [raw, setRaw] = useState<string>()
 
+  useEffect(() => {
+    setRaw(location.href)
+
+    const onNavigate = () => setRaw(location.href)
+
+    addEventListener("currententrychange", onNavigate, { passive: true })
+    return () => removeEventListener("currententrychange", onNavigate)
+  }, [])
+
   const url = useMemo(() => {
     if (raw == null)
       return
-    return hash(raw)
+    return new URL(raw, location.href)
   }, [raw])
+
+  const go = useCallback((pathOrUrl: string | URL) => {
+    return new URL(pathOrUrl, location.href)
+  }, [])
+
+  const handle = useMemo(() => {
+    if (url == null)
+      return
+    return { url, go } satisfies PathHandle
+  }, [url, go])
+
+  if (handle == null)
+    return null
+
+  return <PathContext.Provider value={handle}>
+    {children}
+  </PathContext.Provider>
+}
+
+/**
+ * Hash-based subpath provider using the legacy `hashchange`
+ * @param props 
+ * @returns 
+ */
+export function HashPathProvider(props: ChildrenProps) {
+  const { children } = props
+
+  const [raw, setRaw] = useState<string>()
 
   useEffect(() => {
     setRaw(location.href)
@@ -69,6 +111,12 @@ export function HashPathProvider(props: ChildrenProps) {
     addEventListener("hashchange", onHashChange, { passive: true })
     return () => removeEventListener("hashchange", onHashChange)
   }, [])
+
+  const url = useMemo(() => {
+    if (raw == null)
+      return
+    return hashAsUrl(raw)
+  }, [raw])
 
   const go = useCallback((pathOrUrl: string | URL) => {
     return new URL(`#${pathOf(pathOrUrl)}`, location.href)
@@ -90,7 +138,7 @@ export function HashPathProvider(props: ChildrenProps) {
 
 export function useHashSubpath(path: PathHandle): PathHandle {
   const url = useMemo(() => {
-    return hash(path.url)
+    return hashAsUrl(path.url)
   }, [path])
 
   const go = useCallback((pathOrUrl: string | URL) => {
@@ -106,7 +154,7 @@ export function useHashSubpath(path: PathHandle): PathHandle {
 
 export function useSearchSubpath(path: PathHandle, key: string): PathHandle {
   const url = useMemo(() => {
-    return search(path.url, key)
+    return searchAsUrl(path.url, key)
   }, [key, path])
 
   const go = useCallback((pathOrUrl: string) => {
