@@ -51,7 +51,7 @@ export function App(props: ChildrenProps) {
 }
 ```
 
-e.g. https://example.com/app/#/this/is/the/pathname
+e.g. `https://example.com/app/#/this/is/the/pathname`
 
 ```tsx
 console.log(usePathContext().unwrap().url.pathname)
@@ -77,7 +77,7 @@ export function App(props: ChildrenProps) {
 }
 ```
 
-e.g. https://example.com/this/is/the/pathname
+e.g. `https://example.com/this/is/the/pathname`
 
 ```tsx
 console.log(usePathContext().unwrap().url.pathname)
