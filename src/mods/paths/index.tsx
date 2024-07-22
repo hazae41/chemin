@@ -6,7 +6,7 @@ import { CloseContext } from "mods/close/index.js"
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react"
 
 /**
- * Grab the path of the given URL
+ * Get the path of the given URL
  * @param pathOrUrl 
  * @returns `/path?key=value#hash`
  */
