@@ -63,10 +63,10 @@ export function RootPathProvider(props: ChildrenProps) {
   useEffect(() => {
     setRaw(location.href)
 
-    const onNavigate = () => setRaw(location.href)
+    const onCurrentEntryChange = () => setRaw(location.href)
 
-    addEventListener("currententrychange", onNavigate, { passive: true })
-    return () => removeEventListener("currententrychange", onNavigate)
+    addEventListener("currententrychange", onCurrentEntryChange, { passive: true })
+    return () => removeEventListener("currententrychange", onCurrentEntryChange)
   }, [])
 
   const url = useMemo(() => {
