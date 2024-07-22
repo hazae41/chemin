@@ -342,6 +342,8 @@ function FunPage() {
 You can transform search parameters into a key-value state object
 
 ```tsx
+import { usePathContext, useSearchAsKeyValueState } from "@hazae41/chemin"
+
 function Page() {
   const path = usePathContext().unwrap()
 
