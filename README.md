@@ -22,7 +22,7 @@ This library allows you to create infinite virtual hash-based and search-based s
 
 e.g. `https://example.com/chat/#/settings/user?left=/tree&right=/page`
 
-All the paths in this URL are easily routed with React components
+All the paths in this URL are easily routed and modified with React components
 
 ```
 https://example.com/chat ┐
@@ -31,7 +31,7 @@ https://example.com/chat ┐
                                               └ right = /page
 ```
 
-This allows creating dialogs and subdialogs with things on left and right
+This allows creating dialogs, subdialogs, things on left and right, and many more
 
 ## Usage
 
