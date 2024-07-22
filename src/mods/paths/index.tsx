@@ -5,6 +5,21 @@ import { ChildrenProps } from "libs/react/index.js"
 import { CloseContext } from "mods/close/index.js"
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react"
 
+/**
+ * Grab the path of the given URL
+ * @param pathOrUrl 
+ * @returns `/path?key=value#hash`
+ */
+export function pathOf(pathOrUrl: string | URL) {
+  const url = new URL(pathOrUrl, location.href)
+  return url.pathname + url.search + url.hash
+}
+
+/**
+ * Spoof a new URL from the hash and origin of the given URL
+ * @param pathOrUrl 
+ * @returns 
+ */
 export function hashAsUrl(pathOrUrl: string | URL) {
   const url = new URL(pathOrUrl, location.href)
   const hash = url.hash.slice(1)
@@ -15,6 +30,12 @@ export function hashAsUrl(pathOrUrl: string | URL) {
   return new URL(url.origin)
 }
 
+/**
+ * Spoof a new URL from the search and origin of the given URL
+ * @param pathOrUrl 
+ * @param key 
+ * @returns 
+ */
 export function searchAsUrl(pathOrUrl: string | URL, key: string) {
   const url = new URL(pathOrUrl, location.href)
   const value = url.searchParams.get(key)
@@ -25,20 +46,15 @@ export function searchAsUrl(pathOrUrl: string | URL, key: string) {
   return new URL(url.origin)
 }
 
-export function pathOf(pathOrUrl: string | URL) {
-  const url = new URL(pathOrUrl, location.href)
-  return url.pathname + url.search + url.hash
-}
-
 export interface PathHandle {
   /**
-   * The relative URL
+   * The relative URL of this path
    */
   readonly url: URL
 
   /**
-   * The absolute URL if we go to the given path
-   * @param path 
+   * Get the absolute URL if we would go to the given relative URL of this path
+   * @param pathOrUrl
    */
   go(pathOrUrl: string | URL): URL
 }
@@ -136,6 +152,11 @@ export function HashPathProvider(props: ChildrenProps) {
   </PathContext.Provider>
 }
 
+/**
+ * Get a hash-based subpath from the current path
+ * @param path 
+ * @returns 
+ */
 export function useHashSubpath(path: PathHandle): PathHandle {
   const url = useMemo(() => {
     return hashAsUrl(path.url)
@@ -152,6 +173,12 @@ export function useHashSubpath(path: PathHandle): PathHandle {
   }, [url, go])
 }
 
+/**
+ * Get a search-based subpath from the current path
+ * @param path 
+ * @param key 
+ * @returns 
+ */
 export function useSearchSubpath(path: PathHandle, key: string): PathHandle {
   const url = useMemo(() => {
     return searchAsUrl(path.url, key)
@@ -168,6 +195,11 @@ export function useSearchSubpath(path: PathHandle, key: string): PathHandle {
   }, [url, go])
 }
 
+/**
+ * Provide a hash-based subpath from the current path along with a close context
+ * @param props 
+ * @returns 
+ */
 export function HashSubpathProvider(props: ChildrenProps) {
   const { children } = props
 
@@ -185,6 +217,11 @@ export function HashSubpathProvider(props: ChildrenProps) {
   </PathContext.Provider>
 }
 
+/**
+ * Provide a search-based subpath from the current path along with a close context
+ * @param props 
+ * @returns 
+ */
 export function SearchSubpathProvider(props: ChildrenProps & { readonly key: string }) {
   const { children, key } = props
 
@@ -202,6 +239,11 @@ export function SearchSubpathProvider(props: ChildrenProps & { readonly key: str
   </PathContext.Provider>
 }
 
+/**
+ * Transform the search of the current path into a key-value state
+ * @param path 
+ * @returns 
+ */
 export function useSearchAsKeyValueState<T extends Record<string, Optional<string>>>(path: PathHandle) {
   const current = useMemo(() => {
     return Object.fromEntries(path.url.searchParams) as T
