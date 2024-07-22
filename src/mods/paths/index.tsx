@@ -37,7 +37,7 @@ export interface PathHandle {
   readonly url: URL
 
   /**
-   * The absolute url if we go to the given path
+   * The absolute URL if we go to the given path
    * @param path 
    */
   go(pathOrUrl: string | URL): URL
