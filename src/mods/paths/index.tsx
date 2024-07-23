@@ -5,6 +5,8 @@ import { ChildrenProps } from "libs/react/index.js"
 import { CloseContext } from "mods/close/index.js"
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react"
 
+declare const navigation: Nullable<any>
+
 /**
  * Get the path of the given URL
  * @param pathOrUrl 
@@ -81,8 +83,8 @@ export function RootPathProvider(props: ChildrenProps) {
 
     const onCurrentEntryChange = () => setRaw(location.href)
 
-    addEventListener("currententrychange", onCurrentEntryChange, { passive: true })
-    return () => removeEventListener("currententrychange", onCurrentEntryChange)
+    navigation?.addEventListener("currententrychange", onCurrentEntryChange, { passive: true })
+    return () => navigation?.removeEventListener("currententrychange", onCurrentEntryChange)
   }, [])
 
   const url = useMemo(() => {
