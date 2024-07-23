@@ -19,5 +19,3 @@ export function Router() {
     Click me
   </a>
 }
-
-
