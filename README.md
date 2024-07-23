@@ -89,22 +89,24 @@ You may need to disable client-side navigation from your framework
 
 ```tsx
 declare const navigation: Nullable<any>
-```
 
-```tsx
-useEffect(() => {
-  /**
-   * Disable Next.js client-side navigation
-   */
-  removeEventListener("popstate", router.onPopState)
-}, [router])
+export default function App({ Component, pageProps, router }: AppProps) {
+  useEffect(() => {
+    /**
+     * Disable Next.js client-side navigation
+     */
+    removeEventListener("popstate", router.onPopState)
+  }, [router])
 
-useEffect(() => {
-  /**
-   * Enable modern client-side navigation
-   */
-  navigation?.addEventListener("navigate", (event: any) => event.intercept())
-}, [])
+  useEffect(() => {
+    /**
+     * Enable modern client-side navigation
+     */
+    navigation?.addEventListener("navigate", (event: any) => event.intercept())
+  }, [])
+
+  return <Component {...pageProps} />
+}
 ```
 
 And rewrite all URLs to a common one
