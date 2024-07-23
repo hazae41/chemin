@@ -1,9 +1,17 @@
 import { RootPathProvider, usePathContext } from "@hazae41/chemin";
 import { Nullable } from "@hazae41/option";
+import { useEffect } from "react";
 
 declare const navigation: Nullable<any>
 
 export default function Home() {
+  useEffect(() => {
+    /**
+     * Only client-side navigation
+     */
+    navigation?.addEventListener("navigate", (event: any) => event.intercept())
+  }, [])
+
   return <RootPathProvider>
     <Router />
   </RootPathProvider>
