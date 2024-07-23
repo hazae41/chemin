@@ -15,7 +15,7 @@ export default function App({ Component, pageProps, router }: AppProps) {
 
   useEffect(() => {
     /**
-     * Use modern client-side navigation
+     * Enable modern client-side navigation
      */
     navigation?.addEventListener("navigate", (event: any) => event.intercept())
   }, [])
