@@ -26,7 +26,7 @@ export function Router() {
   if (path.url.hash === "#secret")
     return <div>Access granted!</div>
 
-  return <a onClick={() => navigation?.navigate("/a/long/path")}>
+  return <a href={path.go("/a/long/path").href}>
     Click me
   </a>
 }
