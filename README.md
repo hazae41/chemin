@@ -311,7 +311,7 @@ function HomePage() {
 
 ### CloseContext
 
-All providers of `PathContext` are also providers of `CloseContext`
+All providers of `PathContext` are also providers of [`CloseContext`](https://github.com/hazae41/react-close-context)
 
 You can use the provided `CloseContext` to go back to the root of the current path
 
@@ -341,36 +341,6 @@ function Dialog(props: ChildrenProps) {
       {children}
     </div>
   </div>
-}
-```
-
-You can also provide `CloseContext` to perform your own logic
-
-```tsx
-import { CloseContext } from "@hazae41/chemin"
-
-function FunPage() {
-  const [open, setOpen] = useState(false)
-
-  const onOpen = useCallback(() => {
-    setOpen(true)
-  }, [])
-
-  const onClose = useCallback(() => {
-    setOpen(false)
-  }, [])
-
-  return <>
-    <CloseContext.Provider value={onClose}>
-      {open && 
-        <Dialog>
-          Hi
-        </Dialog>}
-    </CloseContext.Provider>
-    <button onClick={onOpen}>
-      Fun?
-    </button>
-  </>
 }
 ```
 
