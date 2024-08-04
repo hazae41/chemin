@@ -34,7 +34,8 @@
     "typescript": "^5.3.3"
   },
   "peerDependencies": {
-    "react": "^18"
+    "react": "^18",
+    "@hazae41/react-close-context": "^1"
   },
   "exports": {
     ".": {
