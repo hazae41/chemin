@@ -4,7 +4,7 @@ import { Nullable, Option } from "@hazae41/option"
 import { CloseContext } from "@hazae41/react-close-context"
 import { ChildrenProps, Setter, State } from "libs/react/index.js"
 import { hashAsUrl, pathOf, searchAsUrl, urlOf } from "libs/url/index.js"
-import { createContext, KeyboardEvent, SetStateAction, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react"
+import { createContext, KeyboardEvent, MouseEvent, SetStateAction, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react"
 
 declare const navigation: Nullable<any>
 
