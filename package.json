@@ -1,7 +1,7 @@
 {
   "type": "module",
   "name": "@hazae41/chemin",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Create infinite virtual subpaths for your React webapp",
   "homepage": "https://github.com/hazae41/chemin",
   "repository": "github:hazae41/chemin",
