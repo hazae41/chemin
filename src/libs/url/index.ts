@@ -8,8 +8,13 @@ import { Nullable } from "@hazae41/option"
  */
 export function urlOf(hrefOrUrl: string | URL, search: Record<string, Nullable<any>> = {}) {
   const url = new URL(hrefOrUrl, location.href)
-  const entries = Object.entries(search).filter(([_, v]) => v != null)
-  url.search = new URLSearchParams(entries).toString()
+
+  for (const key in search)
+    if (search[key] == null)
+      url.searchParams.delete(key)
+    else
+      url.searchParams.set(key, search[key])
+
   return url
 }
 
