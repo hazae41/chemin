@@ -1,29 +1,47 @@
 import * as React from "react"
 
-import { Nullable, Option, Optional } from "@hazae41/option"
+import { Nullable, Option } from "@hazae41/option"
 import { CloseContext } from "@hazae41/react-close-context"
-import { ChildrenProps } from "libs/react/index.js"
+import { ChildrenProps, Setter, State } from "libs/react/index.js"
 import { hashAsUrl, pathOf, searchAsUrl, urlOf } from "libs/url/index.js"
-import { createContext, KeyboardEvent, useCallback, useContext, useEffect, useMemo, useState } from "react"
+import { createContext, KeyboardEvent, SetStateAction, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react"
 
 declare const navigation: Nullable<any>
 
 export interface PathHandle {
   /**
-   * The current relative URL of this path
+   * The current relative URL
    */
   readonly url: URL
 
   /**
-   * The current pending URL of this path
+   * The pending relative URL
    */
   get(): URL
 
   /**
-   * Get the absolute URL if we would go to the given relative URL of this path
+   * Get the absolute URL if we would go to the given relative URL
    * @param hrefOrUrl
    */
   go(hrefOrUrl: string | URL): URL
+}
+
+export interface ValueHandle {
+  /**
+   * The current value
+   */
+  readonly value: Nullable<string>
+
+  /**
+   * The pending value
+   */
+  get(): Nullable<string>
+
+  /**
+   * Get the absolute URL if we would set the value to the given value
+   * @param hrefOrUrl
+   */
+  set(value: Nullable<string>): URL
 }
 
 export const PathContext =
@@ -110,7 +128,7 @@ export function HashPathProvider(props: ChildrenProps) {
 }
 
 /**
- * Get a hash-based subpath from the current path
+ * Get a hash-based subpath from the given path
  * @param path 
  * @returns 
  */
@@ -124,36 +142,10 @@ export function useHashSubpath(path: PathHandle): PathHandle {
   }, [get])
 
   const go = useCallback((hrefOrUrl: string | URL) => {
-    const next = path.get()
-    next.hash = pathOf(hrefOrUrl)
-    return path.go(next)
+    const url = path.get()
+    url.hash = pathOf(hrefOrUrl)
+    return path.go(url)
   }, [path])
-
-  return useMemo(() => {
-    return { url, get, go } satisfies PathHandle
-  }, [url, get, go])
-}
-
-/**
- * Get a search-based subpath from the current path
- * @param path 
- * @param key 
- * @returns 
- */
-export function useSearchSubpath(path: PathHandle, key: string): PathHandle {
-  const get = useCallback(() => {
-    return searchAsUrl(path.get(), key)
-  }, [key, path])
-
-  const url = useMemo(() => {
-    return get()
-  }, [get])
-
-  const go = useCallback((hrefOrUrl: string) => {
-    const next = path.get()
-    next.searchParams.set(key, pathOf(hrefOrUrl))
-    return path.go(next)
-  }, [key, path])
 
   return useMemo(() => {
     return { url, get, go } satisfies PathHandle
@@ -183,6 +175,100 @@ export function HashSubpathProvider(props: ChildrenProps) {
 }
 
 /**
+ * Get a search-based subpath from the given path
+ * @param path 
+ * @param key 
+ * @returns 
+ */
+export function useSearchSubpath(path: PathHandle, key: string): PathHandle {
+  const get = useCallback(() => {
+    return searchAsUrl(path.get(), key)
+  }, [key, path])
+
+  const url = useMemo(() => {
+    return get()
+  }, [get])
+
+  const go = useCallback((hrefOrUrl: string) => {
+    const url = path.get()
+    url.searchParams.set(key, pathOf(hrefOrUrl))
+    return path.go(url)
+  }, [key, path])
+
+  return useMemo(() => {
+    return { url, get, go } satisfies PathHandle
+  }, [url, get, go])
+}
+
+/**
+ * Get a search-based value from the given path
+ * @param path 
+ * @param key 
+ * @returns 
+ */
+export function useSearchValue(path: PathHandle, key: string) {
+  const get = useCallback(() => {
+    return path.get().searchParams.get(key)
+  }, [key, path])
+
+  const value = useMemo(() => {
+    return get()
+  }, [get])
+
+  const set = useCallback((value: Nullable<string>) => {
+    const url = path.get()
+
+    if (value == null)
+      url.searchParams.delete(key)
+    else
+      url.searchParams.set(key, value)
+
+    return path.go(url)
+  }, [key, path])
+
+  return useMemo(() => {
+    return { value, get, set } satisfies ValueHandle
+  }, [value, get, set])
+}
+
+/**
+ * Get a search-based state from the given path
+ * @param path 
+ * @param key 
+ * @returns 
+ */
+export function useSearchState(path: PathHandle, key: string) {
+  const state = useMemo(() => {
+    return path.get().searchParams.get(key)
+  }, [path, key])
+
+  const setStateRef = useRef<Setter<Nullable<string>>>()
+
+  setStateRef.current = useCallback((action: SetStateAction<Nullable<string>>) => {
+    const url = path.get()
+
+    const prev = url.searchParams.get(key)
+
+    const next = typeof action === "function"
+      ? action(prev)
+      : action
+
+    if (next == null)
+      url.searchParams.delete(key)
+    else
+      url.searchParams.set(key, next)
+
+    location.replace(path.go(url))
+  }, [key, path])
+
+  const setState = useCallback((action: SetStateAction<Nullable<string>>) => {
+    setStateRef.current?.(action)
+  }, [])
+
+  return [state, setState] satisfies State<Nullable<string>>
+}
+
+/**
  * Provide a search-based subpath from the current path along with a close context
  * @param props 
  * @returns 
@@ -205,7 +291,7 @@ export function SearchSubpathProvider(props: ChildrenProps & { readonly key: str
 }
 
 /**
- * Pass the coordinates of the events to the given url and navigate to it relative to the given path
+ * Pass the coordinates of the events to the given URL and replace-navigate to it relative to the given path
  * @param path 
  * @param hrefOrUrl 
  * @returns 
@@ -258,35 +344,4 @@ export function useCoords(path: PathHandle, hrefOrUrl: Nullable<string | URL>) {
   }, [hrefOrUrl, path])
 
   return { onClick, onKeyDown, onContextMenu, href }
-}
-
-/**
- * Transform the search of the current path into a key-value state
- * @param path 
- * @returns 
- */
-export function useSearchAsKeyValueState<T extends Record<string, Optional<string>>>(path: PathHandle) {
-  const current = useMemo(() => {
-    return Object.fromEntries(path.url.searchParams) as T
-  }, [path])
-
-  const [pending, setPending] = useState<T>(current)
-
-  useMemo(() => {
-    setPending(current)
-  }, [current])
-
-  useEffect(() => {
-    if (pending === current)
-      return
-
-    const url = urlOf(path.url, pending)
-
-    if (path.url.href === url.href)
-      return
-
-    location.replace(path.go(url))
-  }, [pending])
-
-  return [current, setPending] as const
 }

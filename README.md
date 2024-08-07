@@ -309,7 +309,50 @@ function HomePage() {
 }
 ```
 
-### CloseContext
+### Search-based value
+
+You can also create search-based non-path values
+
+```tsx
+import { usePathContext, useSearchState } from "@hazae41/chemin"
+
+function Page() {
+  const path = usePathContext().unwrap()
+
+  const user = useSearchValue(path, "user")
+
+  if (user.value === "root")
+    return <>Hello root!</>
+
+  return <a href={user.set("root").href}>
+    Login as root
+  </a>
+}
+```
+
+### Search-based state
+
+You can even create search-based non-path React state
+
+```tsx
+import { usePathContext, useSearchState } from "@hazae41/chemin"
+
+function Page() {
+  const path = usePathContext().unwrap()
+
+  const [counter, setCounter] = useSearchState(path, "counter")
+
+  const onClick = useCallback(() => {
+    setCounter(previous => String(Number(previous) + 1))
+  }, [])
+
+  return <button onClick={onClick}>
+    Add
+  </button>
+}
+```
+
+### Closeful
 
 All providers of `PathContext` are also providers of [`CloseContext`](https://github.com/hazae41/react-close-context)
 
@@ -341,27 +384,5 @@ function Dialog(props: ChildrenProps) {
       {children}
     </div>
   </div>
-}
-```
-
-### KeyValue state
-
-You can transform search parameters into a key-value state object
-
-```tsx
-import { usePathContext, useSearchAsKeyValueState } from "@hazae41/chemin"
-
-function Page() {
-  const path = usePathContext().unwrap()
-
-  const [search, setSearch] = useSearchAsKeyValueState(path)
-
-  const onClick = useCallback(() => {
-    setSearch(search => ({ ...search, key: "value" }))
-  }, [setSearch])
-
-  return <button onClick={onClick}>
-    Click me
-  </button>
 }
 ```
