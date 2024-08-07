@@ -3,22 +3,27 @@ import * as React from "react"
 import { Nullable, Option, Optional } from "@hazae41/option"
 import { CloseContext } from "@hazae41/react-close-context"
 import { ChildrenProps } from "libs/react/index.js"
-import { hashAsUrl, pathOf, searchAsUrl } from "libs/url/index.js"
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react"
+import { hashAsUrl, pathOf, searchAsUrl, urlOf } from "libs/url/index.js"
+import { createContext, KeyboardEvent, useCallback, useContext, useEffect, useMemo, useState } from "react"
 
 declare const navigation: Nullable<any>
 
 export interface PathHandle {
   /**
-   * The relative URL of this path
+   * The current relative URL of this path
    */
   readonly url: URL
 
   /**
-   * Get the absolute URL if we would go to the given relative URL of this path
-   * @param pathOrUrl
+   * The current pending URL of this path
    */
-  go(pathOrUrl: string | URL): URL
+  get(): URL
+
+  /**
+   * Get the absolute URL if we would go to the given relative URL of this path
+   * @param hrefOrUrl
+   */
+  go(hrefOrUrl: string | URL): URL
 }
 
 export const PathContext =
@@ -39,32 +44,27 @@ export function RootPathProvider(props: ChildrenProps) {
   const [raw, setRaw] = useState<string>()
 
   useEffect(() => {
-    setRaw(location.href)
-
     const onCurrentEntryChange = () => setRaw(location.href)
 
     navigation?.addEventListener("currententrychange", onCurrentEntryChange, { passive: true })
     return () => navigation?.removeEventListener("currententrychange", onCurrentEntryChange)
   }, [])
 
-  const url = useMemo(() => {
-    if (raw == null)
-      return
-    return new URL(raw, location.href)
+  const get = useCallback(() => {
+    return new URL(location.href)
   }, [raw])
 
-  const go = useCallback((pathOrUrl: string | URL) => {
-    return new URL(pathOrUrl, location.href)
+  const url = useMemo(() => {
+    return get()
+  }, [get])
+
+  const go = useCallback((hrefOrUrl: string | URL) => {
+    return new URL(hrefOrUrl, location.href)
   }, [])
 
   const handle = useMemo(() => {
-    if (url == null)
-      return
-    return { url, go } satisfies PathHandle
-  }, [url, go])
-
-  if (handle == null)
-    return null
+    return { url, get, go } satisfies PathHandle
+  }, [url, get, go])
 
   return <PathContext.Provider value={handle}>
     {children}
@@ -82,32 +82,27 @@ export function HashPathProvider(props: ChildrenProps) {
   const [raw, setRaw] = useState<string>()
 
   useEffect(() => {
-    setRaw(location.href)
-
     const onHashChange = () => setRaw(location.href)
 
     addEventListener("hashchange", onHashChange, { passive: true })
     return () => removeEventListener("hashchange", onHashChange)
   }, [])
 
-  const url = useMemo(() => {
-    if (raw == null)
-      return
-    return hashAsUrl(raw)
+  const get = useCallback(() => {
+    return hashAsUrl(location.href)
   }, [raw])
 
-  const go = useCallback((pathOrUrl: string | URL) => {
-    return new URL(`#${pathOf(pathOrUrl)}`, location.href)
+  const url = useMemo(() => {
+    return get()
+  }, [get])
+
+  const go = useCallback((hrefOrUrl: string | URL) => {
+    return new URL(`#${pathOf(hrefOrUrl)}`, location.href)
   }, [])
 
   const handle = useMemo(() => {
-    if (url == null)
-      return
-    return { url, go } satisfies PathHandle
-  }, [url, go])
-
-  if (handle == null)
-    return null
+    return { url, get, go } satisfies PathHandle
+  }, [url, get, go])
 
   return <PathContext.Provider value={handle}>
     {children}
@@ -120,19 +115,23 @@ export function HashPathProvider(props: ChildrenProps) {
  * @returns 
  */
 export function useHashSubpath(path: PathHandle): PathHandle {
-  const url = useMemo(() => {
-    return hashAsUrl(path.url)
+  const get = useCallback(() => {
+    return hashAsUrl(path.get())
   }, [path])
 
-  const go = useCallback((pathOrUrl: string | URL) => {
-    const next = new URL(path.url.href, location.href)
-    next.hash = pathOf(pathOrUrl)
+  const url = useMemo(() => {
+    return get()
+  }, [get])
+
+  const go = useCallback((hrefOrUrl: string | URL) => {
+    const next = path.get()
+    next.hash = pathOf(hrefOrUrl)
     return path.go(next)
   }, [path])
 
   return useMemo(() => {
-    return { url, go } satisfies PathHandle
-  }, [url, go])
+    return { url, get, go } satisfies PathHandle
+  }, [url, get, go])
 }
 
 /**
@@ -142,19 +141,23 @@ export function useHashSubpath(path: PathHandle): PathHandle {
  * @returns 
  */
 export function useSearchSubpath(path: PathHandle, key: string): PathHandle {
-  const url = useMemo(() => {
-    return searchAsUrl(path.url, key)
+  const get = useCallback(() => {
+    return searchAsUrl(path.get(), key)
   }, [key, path])
 
-  const go = useCallback((pathOrUrl: string) => {
-    const next = new URL(path.url.href, location.href)
-    next.searchParams.set(key, pathOf(pathOrUrl))
+  const url = useMemo(() => {
+    return get()
+  }, [get])
+
+  const go = useCallback((hrefOrUrl: string) => {
+    const next = path.get()
+    next.searchParams.set(key, pathOf(hrefOrUrl))
     return path.go(next)
   }, [key, path])
 
   return useMemo(() => {
-    return { url, go } satisfies PathHandle
-  }, [url, go])
+    return { url, get, go } satisfies PathHandle
+  }, [url, get, go])
 }
 
 /**
@@ -202,6 +205,62 @@ export function SearchSubpathProvider(props: ChildrenProps & { readonly key: str
 }
 
 /**
+ * Pass the coordinates of the events to the given url and navigate to it relative to the given path
+ * @param path 
+ * @param hrefOrUrl 
+ * @returns 
+ */
+export function useCoords(path: PathHandle, hrefOrUrl: Nullable<string | URL>) {
+  const href = useMemo(() => {
+    if (hrefOrUrl == null)
+      return
+    return path.go(hrefOrUrl).href
+  }, [hrefOrUrl, path])
+
+  const onClick = useCallback((e: MouseEvent) => {
+    if (e.button !== 0)
+      return
+    if (hrefOrUrl == null)
+      return
+
+    e.preventDefault()
+
+    const x = e.clientX
+    const y = e.clientY
+
+    location.replace(path.go(urlOf(hrefOrUrl, { x, y })))
+  }, [hrefOrUrl, path])
+
+  const onKeyDown = useCallback((e: KeyboardEvent) => {
+    if (e.key !== "Enter")
+      return
+    if (hrefOrUrl == null)
+      return
+
+    e.preventDefault()
+
+    const x = e.currentTarget.getBoundingClientRect().x + (e.currentTarget.getBoundingClientRect().width / 2)
+    const y = e.currentTarget.getBoundingClientRect().y + (e.currentTarget.getBoundingClientRect().height / 2)
+
+    location.replace(path.go(urlOf(hrefOrUrl, { x, y })))
+  }, [hrefOrUrl, path])
+
+  const onContextMenu = useCallback((e: MouseEvent) => {
+    if (hrefOrUrl == null)
+      return
+
+    e.preventDefault()
+
+    const x = e.clientX
+    const y = e.clientY
+
+    location.replace(path.go(urlOf(hrefOrUrl, { x, y })))
+  }, [hrefOrUrl, path])
+
+  return { onClick, onKeyDown, onContextMenu, href }
+}
+
+/**
  * Transform the search of the current path into a key-value state
  * @param path 
  * @returns 
@@ -221,9 +280,7 @@ export function useSearchAsKeyValueState<T extends Record<string, Optional<strin
     if (pending === current)
       return
 
-    const url = new URL(path.url.href)
-    const entries = Object.entries(pending).filter(([_, value]) => value != null)
-    url.search = new URLSearchParams(entries as any).toString()
+    const url = urlOf(path.url, pending)
 
     if (path.url.href === url.href)
       return

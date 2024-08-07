@@ -1,20 +1,35 @@
+import { Nullable } from "@hazae41/option"
+
+/**
+ * Get the URL of the given path and query
+ * @param hrefOrUrl 
+ * @param search 
+ * @returns 
+ */
+export function urlOf(hrefOrUrl: string | URL, search: Record<string, Nullable<any>> = {}) {
+  const url = new URL(hrefOrUrl, location.href)
+  const entries = Object.entries(search).filter(([_, v]) => v != null)
+  url.search = new URLSearchParams(entries).toString()
+  return url
+}
+
 /**
  * Get the path of the given URL
- * @param pathOrUrl 
+ * @param hrefOrUrl 
  * @returns `/path?key=value#hash`
  */
-export function pathOf(pathOrUrl: string | URL) {
-  const url = new URL(pathOrUrl, location.href)
+export function pathOf(hrefOrUrl: string | URL) {
+  const url = new URL(hrefOrUrl, location.href)
   return url.pathname + url.search + url.hash
 }
 
 /**
  * Spoof a new URL from the hash and origin of the given URL
- * @param pathOrUrl 
+ * @param hrefOrUrl 
  * @returns 
  */
-export function hashAsUrl(pathOrUrl: string | URL) {
-  const url = new URL(pathOrUrl, location.href)
+export function hashAsUrl(hrefOrUrl: string | URL) {
+  const url = new URL(hrefOrUrl, location.href)
   const hash = url.hash.slice(1)
 
   if (hash)
@@ -25,12 +40,12 @@ export function hashAsUrl(pathOrUrl: string | URL) {
 
 /**
  * Spoof a new URL from the search and origin of the given URL
- * @param pathOrUrl 
+ * @param hrefOrUrl 
  * @param key 
  * @returns 
  */
-export function searchAsUrl(pathOrUrl: string | URL, key: string) {
-  const url = new URL(pathOrUrl, location.href)
+export function searchAsUrl(hrefOrUrl: string | URL, key: string) {
+  const url = new URL(hrefOrUrl, location.href)
   const value = url.searchParams.get(key)
 
   if (value)
