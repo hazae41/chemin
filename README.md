@@ -15,6 +15,9 @@ npm i @hazae41/chemin
 - No external dependencies
 - Compatible with your framework
 - Uses only web standards
+- Infinite virtual subpaths
+- Element coordinates to URL
+- Search params to React state
 
 ## What?
 
@@ -349,6 +352,79 @@ function Page() {
   return <button onClick={onClick}>
     Add
   </button>
+}
+```
+
+### Coords
+
+You can use `useCoords(path, url)` with an HTML element to pass the element's X-Y coordinates to the URL
+
+```tsx
+function Page() {
+  const path = usePathContext().unwrap()
+  const hash = useHashSubpath(path)
+
+  const settings = useCoords(hash, "/settings")
+
+  return <>
+    <HashSubpathProvider>
+      {hash.url.pathname === "/settings" &&
+        <Dialog>
+          Settings
+        </Dialog>}
+    </HashSubpathProvider>
+    <a className="anchor"
+      href={settings.href}
+      onClick={settings.onClick}
+      onKeyDown={settings.onKeyDown}>
+      Open settings
+    </a>
+  </>
+}
+```
+
+Then you can consume those coordinates to add fancy animations and positioning
+
+```tsx
+function Dialog(props: ChildrenProps) {
+  const { children } = props
+
+  const path = usePathContext().unwrap()
+  
+  const x = path.url.searchParams.get("x") || 0
+  const y = path.url.searchParams.get("x") || 0
+
+  return <div style={{ "--x": `${x}px`, "--y": `${y}px` }}>
+    <div className="dialog">
+      {children}
+    </div>
+  </div>
+}
+```
+
+Hint: `x` is `element.clientX` and `y` is `element.clientY`
+
+You can also navigate on right-click using `onContextMenu`
+
+```tsx
+function Page() {
+  const path = usePathContext().unwrap()
+  const hash = useHashSubpath(path)
+
+  const menu = useCoords(hash, "/menu")
+
+  return <>
+    <HashSubpathProvider>
+      {hash.url.pathname === "/menu" &&
+        <Menu>
+          <button>Share</button>
+        </Menu>}
+    </HashSubpathProvider>
+    <div className="card"
+      onContextMenu={menu.onContextMenu}>
+      Right-click me
+    </div>
+  </>
 }
 ```
 
