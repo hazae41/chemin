@@ -115,7 +115,9 @@ export function HashPathProvider(props: ChildrenProps) {
   }, [get])
 
   const go = useCallback((hrefOrUrl: string | URL) => {
-    return new URL(`#${pathOf(hrefOrUrl)}`, location.href)
+    const url = new URL(location.href)
+    url.hash = `#${pathOf(hrefOrUrl)}`
+    return url
   }, [])
 
   const handle = useMemo(() => {
@@ -143,7 +145,7 @@ export function useHashSubpath(path: PathHandle): PathHandle {
 
   const go = useCallback((hrefOrUrl: string | URL) => {
     const url = path.get()
-    url.hash = pathOf(hrefOrUrl)
+    url.hash = `#${pathOf(hrefOrUrl)}`
     return path.go(url)
   }, [path])
 
