@@ -42,6 +42,7 @@ export const config = [
       format: "esm",
       exports: "named",
       preserveModules: true,
+      sourcemap: false,
       entryFileNames: "[name].mjs"
     }],
     plugins: [externals({ devDeps: true }), swc()],
