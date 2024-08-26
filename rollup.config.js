@@ -1,6 +1,7 @@
 import ts from "@rollup/plugin-typescript";
 import dts from "rollup-plugin-dts";
 import externals from "rollup-plugin-node-externals";
+import swc from "rollup-plugin-swc3";
 
 export const config = [
   {
@@ -20,7 +21,7 @@ export const config = [
       sourcemap: true,
       entryFileNames: "[name].cjs",
     }],
-    plugins: [externals(), ts()]
+    plugins: [externals(), swc({ sourceMaps: true })]
   },
   {
     input: "./src/index.ts",
@@ -41,10 +42,9 @@ export const config = [
       format: "esm",
       exports: "named",
       preserveModules: true,
-      sourcemap: true,
       entryFileNames: "[name].mjs"
     }],
-    plugins: [externals({ devDeps: true }), ts()],
+    plugins: [externals({ devDeps: true }), swc()],
   },
 ]
 

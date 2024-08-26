@@ -30,12 +30,13 @@
     "rollup": "^4.9.6",
     "rollup-plugin-dts": "^6.1.0",
     "rollup-plugin-node-externals": "^7.0.1",
+    "rollup-plugin-swc3": "^0.11.2",
     "tslib": "^2.6.2",
     "typescript": "^5.3.3"
   },
   "peerDependencies": {
-    "react": "^18",
-    "@hazae41/react-close-context": "^1"
+    "@hazae41/react-close-context": "^1",
+    "react": "^18"
   },
   "exports": {
     ".": {
