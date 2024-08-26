@@ -13,13 +13,6 @@ export const config = [
       sourcemap: true,
       entryFileNames: "[name].mjs",
     }, {
-      dir: "./dist/types",
-      format: "esm",
-      exports: "named",
-      preserveModules: true,
-      sourcemap: false,
-      entryFileNames: "[name].d.ts",
-    }, {
       dir: "./dist/cjs",
       format: "cjs",
       exports: "named",
@@ -27,7 +20,19 @@ export const config = [
       sourcemap: true,
       entryFileNames: "[name].cjs",
     }],
-    plugins: [externals(), swc({ sourceMaps: true }), dts({ tsconfig: "tsconfig.json" })]
+    plugins: [externals(), swc({ sourceMaps: true })]
+  },
+  {
+    input: "./src/index.ts",
+    output: [{
+      dir: "./dist/types",
+      format: "esm",
+      exports: "named",
+      preserveModules: true,
+      sourcemap: false,
+      entryFileNames: "[name].d.ts",
+    }],
+    plugins: [externals(), dts({ tsconfig: "tsconfig.json" })]
   },
   {
     input: "./src/index.test.ts",
