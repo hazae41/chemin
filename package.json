@@ -24,15 +24,12 @@
   "devDependencies": {
     "@hazae41/phobos": "^1.0.10",
     "@hazae41/rimraf": "^1.0.1",
-    "@rollup/plugin-typescript": "^11.1.6",
     "@types/node": "^20.11.16",
     "@types/react": "^18.3.3",
     "rollup": "^4.9.6",
     "rollup-plugin-dts": "^6.1.0",
     "rollup-plugin-node-externals": "^7.0.1",
-    "rollup-plugin-swc3": "^0.11.2",
-    "tslib": "^2.6.2",
-    "typescript": "^5.3.3"
+    "rollup-plugin-swc3": "^0.11.2"
   },
   "peerDependencies": {
     "@hazae41/react-close-context": "^1",
