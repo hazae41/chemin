@@ -45,8 +45,15 @@ You can use `HashPathProvider` to provide a hash-based path for your app
 ```tsx
 import { HashPathProvider } from "@hazae41/chemin"
 
-export function App(props: ChildrenProps) {
-  const { children } = props
+export function App() {
+  const [client, setClient] = useState(false)
+
+  useEffect(() => {
+    setClient(true)
+  }, [])
+
+  if (!client)
+    return null
 
   return <HashPathProvider>
     <Router />
@@ -64,15 +71,88 @@ This will display `/this/is/the/pathname`
 
 ### Root-based path
 
-You can also use `RootPathProvider` to provide root-based path for your app
+You can also provide root-based path for your app
+
+#### Use Next.js router
+
+```tsx
+import { useRouter } from "next/router"
+
+export function NextPathProvider(props: { children?: ReactNode }) {
+  const router = useRouter()
+  const { children } = props
+
+  const [raw, setRaw] = useState<string>()
+
+  useEffect(() => {
+    const onRouteChangeComplete = () => setRaw(location.href)
+
+    router.events.on("routeChangeComplete", onRouteChangeComplete)
+    return () => router.events.off("routeChangeComplete", onRouteChangeComplete)
+  }, [])
+
+  useEffect(() => {
+    const onHashChangeComplete = () => setRaw(location.href)
+
+    router.events.on("hashChangeComplete", onHashChangeComplete)
+    return () => router.events.off("hashChangeComplete", onHashChangeComplete)
+  }, [])
+
+  const get = useCallback(() => {
+    return new URL(location.href)
+  }, [raw])
+
+  const url = useMemo(() => {
+    return get()
+  }, [get])
+
+  const go = useCallback((hrefOrUrl: string | URL) => {
+    return new URL(hrefOrUrl, location.href)
+  }, [])
+
+  const handle = useMemo(() => {
+    return { url, get, go } satisfies PathHandle
+  }, [url, get, go])
+
+  return <PathContext.Provider value={handle}>
+    {children}
+  </PathContext.Provider>
+}
+```
+
+```tsx
+export function App() {
+  const [client, setClient] = useState(false)
+
+  useEffect(() => {
+    setClient(true)
+  }, [])
+
+  if (!client)
+    return null
+
+  return <NextPathProvider>
+    <Router />
+  </NextPathProvider>
+}
+```
+
+#### Use Navigation API
 
 This uses the modern [Navigation API](https://developer.mozilla.org/en-US/docs/Web/API/Navigation_API) that only works on some browsers for now 
 
 ```tsx
 import { RootPathProvider } from "@hazae41/chemin"
 
-export function App(props: ChildrenProps) {
-  const { children } = props
+export function App() {
+  const [client, setClient] = useState(false)
+
+  useEffect(() => {
+    setClient(true)
+  }, [])
+
+  if (!client)
+    return null
 
   return <RootPathProvider>
     <Router />
