@@ -275,11 +275,11 @@ export function useSearchState(path: PathHandle, key: string) {
  * @param props 
  * @returns 
  */
-export function SearchSubpathProvider(props: ChildrenProps & { readonly key: string }) {
-  const { children, key } = props
+export function SearchSubpathProvider(props: ChildrenProps & { readonly value: string }) {
+  const { children, value } = props
 
   const path = usePathContext().getOrThrow()
-  const search = useSearchSubpath(path, key)
+  const search = useSearchSubpath(path, value)
 
   const onClose = useCallback(() => {
     location.replace(search.go("/"))
