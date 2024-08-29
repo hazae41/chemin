@@ -162,7 +162,7 @@ export function useHashSubpath(path: PathHandle): PathHandle {
 export function HashSubpathProvider(props: ChildrenProps) {
   const { children } = props
 
-  const path = usePathContext().unwrap()
+  const path = usePathContext().getOrThrow()
   const hash = useHashSubpath(path)
 
   const onClose = useCallback(() => {
@@ -278,7 +278,7 @@ export function useSearchState(path: PathHandle, key: string) {
 export function SearchSubpathProvider(props: ChildrenProps & { readonly key: string }) {
   const { children, key } = props
 
-  const path = usePathContext().unwrap()
+  const path = usePathContext().getOrThrow()
   const search = useSearchSubpath(path, key)
 
   const onClose = useCallback(() => {
