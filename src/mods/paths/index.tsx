@@ -306,8 +306,6 @@ export function useCoords(path: PathHandle, hrefOrUrl: Nullable<string | URL>) {
   }, [hrefOrUrl, path])
 
   const onClick = useCallback((e: MouseEvent) => {
-    if (e.currentTarget.ariaDisabled === "true")
-      return
     if (e.button !== 0)
       return
     if (hrefOrUrl == null)
@@ -322,8 +320,6 @@ export function useCoords(path: PathHandle, hrefOrUrl: Nullable<string | URL>) {
   }, [hrefOrUrl, path])
 
   const onKeyDown = useCallback((e: KeyboardEvent) => {
-    if (e.currentTarget.ariaDisabled === "true")
-      return
     if (e.key !== "Enter")
       return
     if (hrefOrUrl == null)
@@ -338,8 +334,6 @@ export function useCoords(path: PathHandle, hrefOrUrl: Nullable<string | URL>) {
   }, [hrefOrUrl, path])
 
   const onContextMenu = useCallback((e: MouseEvent) => {
-    if (e.currentTarget.ariaDisabled === "true")
-      return
     if (hrefOrUrl == null)
       return
 
