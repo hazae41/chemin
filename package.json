@@ -32,7 +32,7 @@
     "rollup-plugin-swc3": "^0.11.2"
   },
   "peerDependencies": {
-    "@hazae41/react-close-context": "^1",
+    "@hazae41/react-close-context": ">=1",
     "react": ">=18"
   },
   "exports": {
