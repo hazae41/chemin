@@ -44,9 +44,9 @@ export function hashAsUrl(hrefOrUrl: string | URL) {
   const hash = url.hash.slice(1)
 
   if (hash)
-    return new URL(hash, url.origin)
+    return new URL(hash, url.href)
 
-  return new URL(url.origin)
+  return new URL(url.href)
 }
 
 /**
@@ -60,7 +60,7 @@ export function searchAsUrl(hrefOrUrl: string | URL, key: string) {
   const value = url.searchParams.get(key)
 
   if (value)
-    return new URL(value, url.origin)
+    return new URL(value, url.href)
 
-  return new URL(url.origin)
+  return new URL(url.href)
 }
