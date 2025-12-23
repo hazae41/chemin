@@ -305,10 +305,10 @@ export function SearchSubpathProvider(props: ChildrenProps & { readonly value: s
  * @returns 
  */
 export function useCoords(path: PathHandle, hrefOrUrl: Nullable<string | URL>) {
-  const href = useMemo(() => {
+  const url = useMemo(() => {
     if (hrefOrUrl == null)
       return
-    return pathOf(path.go(hrefOrUrl))
+    return path.go(hrefOrUrl)
   }, [hrefOrUrl, path])
 
   const onClick = useCallback((e: MouseEvent) => {
@@ -351,5 +351,5 @@ export function useCoords(path: PathHandle, hrefOrUrl: Nullable<string | URL>) {
     location.replace(path.go(urlOf(hrefOrUrl, { x, y })))
   }, [hrefOrUrl, path])
 
-  return { onClick, onKeyDown, onContextMenu, href }
+  return { onClick, onKeyDown, onContextMenu, url }
 }
