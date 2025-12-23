@@ -351,5 +351,7 @@ export function useCoords(path: PathHandle, hrefOrUrl: Nullable<string | URL>) {
     location.replace(path.go(urlOf(hrefOrUrl, { x, y })))
   }, [hrefOrUrl, path])
 
-  return { onClick, onKeyDown, onContextMenu, url }
+  return useMemo(() => {
+    return { onClick, onKeyDown, onContextMenu, url }
+  }, [onClick, onKeyDown, onContextMenu, url])
 }
