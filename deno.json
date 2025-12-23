@@ -1,0 +1,11 @@
+{
+  "imports": {
+    "@/": "./src/"
+  },
+  "compilerOptions": {
+    "lib": [
+      "esnext",
+      "dom"
+    ]
+  }
+}

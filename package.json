@@ -3,7 +3,6 @@
   "name": "@hazae41/chemin",
   "version": "2.0.10",
   "description": "Create infinite virtual subpaths for your React webapp",
-  "homepage": "https://github.com/hazae41/chemin",
   "repository": "github:hazae41/chemin",
   "author": "hazae41",
   "license": "MIT",
@@ -21,13 +20,14 @@
     }
   },
   "devDependencies": {
-    "@hazae41/phobos": "^2.0.13",
+    "@hazae41/phobos": "^2.0.16",
     "@hazae41/tscousin": "^1.0.28",
+    "@types/react": "^19.2.7",
     "typescript": "^5.9.3"
   },
   "peerDependencies": {
-    "@hazae41/react-close-context": ">=1",
-    "react": ">=18"
+    "@hazae41/react-close-context": ">=1.0.2",
+    "react": ">=19.2.3"
   },
   "keywords": [
     "typescript",
