@@ -46,7 +46,7 @@ export function hashAsUrl(hrefOrUrl: string | URL) {
   if (hash)
     return new URL(hash, url.href)
 
-  return new URL(url.href)
+  return new URL("/", url.href)
 }
 
 /**
@@ -62,5 +62,5 @@ export function searchAsUrl(hrefOrUrl: string | URL, key: string) {
   if (value)
     return new URL(value, url.href)
 
-  return new URL(url.href)
+  return new URL("/", url.href)
 }
