@@ -308,7 +308,7 @@ export function useCoords(path: PathHandle, hrefOrUrl: Nullable<string | URL>) {
   const href = useMemo(() => {
     if (hrefOrUrl == null)
       return
-    return path.go(hrefOrUrl).href
+    return pathOf(path.go(hrefOrUrl))
   }, [hrefOrUrl, path])
 
   const onClick = useCallback((e: MouseEvent) => {
