@@ -5,8 +5,8 @@
 import { Nullable } from "@/libs/nullable/mod.ts"
 import { ChildrenProps, Setter, State } from "@/libs/react/mod.ts"
 import { hashAsUrl, pathOf, searchAsUrl, urlOf } from "@/libs/url/mod.ts"
-import { Option } from "@hazae41/option"
 import { CloseContext } from "@hazae41/react-close-context"
+import { Option } from "@hazae41/result-and-option"
 import * as React from "react"
 import { createContext, KeyboardEvent, MouseEvent, SetStateAction, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react"
 

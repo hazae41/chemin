@@ -36,6 +36,6 @@
     "react": ">=19.2.3"
   },
   "dependencies": {
-    "@hazae41/option": "^1.1.4"
+    "@hazae41/result-and-option": "^2.0.10"
   }
 }
