@@ -19,6 +19,12 @@
       "import": "./out/mod.js"
     }
   },
+  "keywords": [
+    "typescript",
+    "esmodules",
+    "tested",
+    "unit-tested"
+  ],
   "devDependencies": {
     "@hazae41/phobos": "^2.0.16",
     "@hazae41/tscousin": "^1.0.28",
@@ -29,10 +35,7 @@
     "@hazae41/react-close-context": ">=1.0.2",
     "react": ">=19.2.3"
   },
-  "keywords": [
-    "typescript",
-    "esmodules",
-    "tested",
-    "unit-tested"
-  ]
+  "dependencies": {
+    "@hazae41/option": "^1.1.4"
+  }
 }
