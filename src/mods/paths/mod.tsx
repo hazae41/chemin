@@ -333,8 +333,10 @@ export function useCoords(path: PathHandle, hrefOrUrl: Nullable<string | URL>) {
 
     e.preventDefault()
 
-    const x = e.currentTarget.getBoundingClientRect().x + (e.currentTarget.getBoundingClientRect().width / 2)
-    const y = e.currentTarget.getBoundingClientRect().y + (e.currentTarget.getBoundingClientRect().height / 2)
+    const box = e.currentTarget.getBoundingClientRect()
+
+    const x = box.x + (box.width / 2)
+    const y = box.y + (box.height / 2)
 
     location.replace(path.go(urlOf(hrefOrUrl, { x, y })))
   }, [hrefOrUrl, path])
