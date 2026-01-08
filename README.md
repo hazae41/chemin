@@ -38,47 +38,37 @@ This allows creating dialogs, subdialogs, things on left and right, and many mor
 
 ## Usage
 
-### Hash-based path
+### Hash path
 
-You can use `HashPathProvider` to provide a hash-based path for your app
+You can provide a path based on the page hash with `useHashPath()`
 
 ```tsx
-import { HashPathProvider } from "@hazae41/chemin"
+import { PathProvider, useHashPath, usePathContext } from "@hazae41/chemin"
 
 export function App() {
-  const [client, setClient] = useState(false)
+  const path = useHashPath()
 
-  useEffect(() => {
-    setClient(true)
-  }, [])
-
-  if (!client)
-    return null
-
-  return <HashPathProvider>
-    <Router />
-  </HashPathProvider>
+  return <PathProvider value={path}>
+    ...
+  </PathProvider>
 }
 ```
 
-e.g. `https://example.com/app/#/this/is/the/pathname`
+For example if you visit `https://example.com/app/#/this/is/the/pathname` then `path.url.pathname` will be `/this/is/the/pathname`
 
-```tsx
-console.log(usePathContext().unwrap().url.pathname)
-```
+### Custom path
 
-This will display `/this/is/the/pathname`
+You can define your own custom path scheme like below
 
-### Root-based path
+#### Next.js path
 
-You can also provide root-based path for your app
-
-#### Use Next.js router
+You can provide your Next.js path
 
 ```tsx
 import { useRouter } from "next/router"
+import { PathHandle } from "@hazae41/chemin"
 
-export function NextPathProvider(props: { children?: ReactNode }) {
+export function useNextPath(): PathHandle {
   const router = useRouter()
   const { children } = props
 
@@ -110,63 +100,31 @@ export function NextPathProvider(props: { children?: ReactNode }) {
     return new URL(hrefOrUrl, location.href)
   }, [])
 
-  const handle = useMemo(() => {
+  return useMemo(() => {
     return { url, get, go } satisfies PathHandle
   }, [url, get, go])
-
-  return <PathContext.Provider value={handle}>
-    {children}
-  </PathContext.Provider>
 }
 ```
 
-```tsx
-export function App() {
-  const [client, setClient] = useState(false)
-
-  useEffect(() => {
-    setClient(true)
-  }, [])
-
-  if (!client)
-    return null
-
-  return <NextPathProvider>
-    <Router />
-  </NextPathProvider>
-}
-```
-
-#### Use Navigation API
+### Navigation API path
 
 This uses the modern [Navigation API](https://developer.mozilla.org/en-US/docs/Web/API/Navigation_API) that only works on some browsers for now 
 
 ```tsx
-import { RootPathProvider } from "@hazae41/chemin"
+import { PathProvider, usePath } from "@hazae41/chemin"
 
 export function App() {
-  const [client, setClient] = useState(false)
+  const path = usePath()
 
-  useEffect(() => {
-    setClient(true)
-  }, [])
-
-  if (!client)
-    return null
-
-  return <RootPathProvider>
-    <Router />
-  </RootPathProvider>
+  return <PathProvider value={path}>
+    ...
+  </PathProvider>
 }
 ```
 
-e.g. `https://example.com/this/is/the/pathname`
+For example if you visit `https://example.com/this/is/the/pathname` then `path.url.pathname` will be `/this/is/the/pathname`
 
-```tsx
-console.log(usePathContext().unwrap().url.pathname)
-```
-
-This will display `/this/is/the/pathname`
+#### Warning
 
 You may need to disable client-side navigation from your framework
 
@@ -207,16 +165,19 @@ rewrites() {
 
 ### Simple router
 
-You can route things with `usePathContext()`
+You can route things with `path.url.pathname`
 
 ```tsx
 import { usePathContext } from "@hazae41/chemin"
 
 function Router() {
-  const path = usePathContext().unwrap()
+  const path = usePathContext().getOrThrow()
 
   if (path.url.pathname === "/home")
     return <HomePage />
+
+  if (path.url.pathname === "/settings")
+    return <SettingsPage />
 
   return <NotFoundPage />
 }
@@ -230,7 +191,7 @@ You can route things with pattern-matching via regexes
 import { usePathContext } from "@hazae41/chemin"
 
 function Router() {
-  const path = usePathContext().unwrap()
+  const path = usePathContext().getOrThrow()
 
   let matches: RegExpMatchArray | null
 
@@ -258,7 +219,7 @@ You can also route things inside a component
 import { usePathContext } from "@hazae41/chemin"
 
 function FunPage() {
-  const path = usePathContext().unwrap()
+  const path = usePathContext().getOrThrow()
 
   return <>
     {path.url.pathname === "/help" &&
@@ -280,7 +241,7 @@ You can use anchors and buttons to declaratively and imperatively navigate
 import { usePathContext } from "@hazae41/chemin"
 
 function LandingPage() {
-  const path = usePathContext().unwrap()
+  const path = usePathContext().getOrThrow()
 
   const onHelpClick = useCallback(() => {
     location.replace(path.go("/help"))
@@ -302,15 +263,15 @@ function LandingPage() {
 
 ### Hash-based subpath
 
-You can create hash-based subroutes
+You can create hash-based subpaths
 
 e.g. `https://example.com/home/#/secret`
 
 ```tsx
 import { usePathContext, useHashSubpath, HashSubpathProvider } from "@hazae41/chemin"
 
-function HomePageSubrouter() {
-  const path = usePathContext().unwrap()
+export function SecretRouter() {
+  const path = usePathContext().getOrThrow()
 
   if (path.url.pathname === "/secret")
     return <SecretDialog />
@@ -318,7 +279,7 @@ function HomePageSubrouter() {
   return null
 }
 
-function HomePage() {
+export function HomePage() {
   const path = usePathContext().unwrap()
   const hash = useHashSubpath(path)
 
@@ -327,9 +288,9 @@ function HomePage() {
   }, [hash])
 
   return <>
-    <HashSubpathProvider>
-      <HomePageSubrouter />
-    </HashSubpathProvider>
+    <SubpathProvider value={hash}>
+      <SecretRouter />
+    </SubpathProvider>
     <div>
       Hello world!
     </div>
@@ -345,15 +306,15 @@ function HomePage() {
 
 ### Search-based subpath
 
-You can create search-based subroutes
+You can create search-based subpaths
 
 e.g. `https://example.com/home?left=/football&right=/baseball`
 
 ```tsx
 import { usePathContext, useSearchSubpath, SearchSubpathProvider } from "@hazae41/chemin"
 
-function PanelRouter() {
-  const path = usePathContext().unwrap()
+export function PanelRouter() {
+  const path = usePathContext().getOrThrow()
 
   if (path.url.pathname === "/football")
     return <FootballPanel />
@@ -364,7 +325,7 @@ function PanelRouter() {
   return <EmptyPanel />
 }
 
-function HomePage() {
+export function Home() {
   const path = usePathContext().unwrap()
 
   const left = useSearchSubpath(path, "left")
@@ -381,12 +342,12 @@ function HomePage() {
       Show baseball on right
     </a>
     <div className="flex">
-      <SearchSubpathProvider key="left">
+      <SubpathProvider value={left}>
         <PanelRouter />
-      </SearchSubpathProvider>
-      <SearchSubpathProvider key="right">
+      </SubpathProvider>
+      <SubpathProvider value={right}>
         <PanelRouter />
-      </SearchSubpathProvider>
+      </SubpathProvider>
     </div>
   </>
 }
@@ -400,7 +361,7 @@ You can also create search-based non-path values
 import { usePathContext, useSearchState } from "@hazae41/chemin"
 
 function Page() {
-  const path = usePathContext().unwrap()
+  const path = usePathContext().getOrThrow()
 
   const user = useSearchValue(path, "user")
 
@@ -421,7 +382,7 @@ You can even create search-based non-path React state
 import { usePathContext, useSearchState } from "@hazae41/chemin"
 
 function Page() {
-  const path = usePathContext().unwrap()
+  const path = usePathContext().getOrThrow()
 
   const [counter, setCounter] = useSearchState(path, "counter")
 
@@ -437,14 +398,14 @@ function Page() {
 
 ### Coords
 
-You can use `useCoords(path, url)` with an HTML element to pass the element's X-Y coordinates to the URL
+You can use `useAnchorWithCoords(path, url)` with an HTML anchor element to pass the element's X-Y coordinates to the URL
 
 ```tsx
 function Page() {
   const path = usePathContext().unwrap()
   const hash = useHashSubpath(path)
 
-  const settings = useCoords(hash, "/settings")
+  const settings = useAnchorWithCoords(hash, "/settings")
 
   return <>
     <HashSubpathProvider>
@@ -469,10 +430,10 @@ Then you can consume those coordinates to add fancy animations and positioning
 function Dialog(props: ChildrenProps) {
   const { children } = props
 
-  const path = usePathContext().unwrap()
+  const path = usePathContext().getOrThrow()
   
-  const x = path.url.searchParams.get("x") || 0
-  const y = path.url.searchParams.get("x") || 0
+  const x = Number(path.url.searchParams.get("x"))
+  const y = Number(path.url.searchParams.get("x"))
 
   return <div style={{ "--x": `${x}px`, "--y": `${y}px` }}>
     <div className="dialog">
@@ -494,12 +455,12 @@ function Page() {
   const menu = useCoords(hash, "/menu")
 
   return <>
-    <HashSubpathProvider>
+    <SubpathProvider value={hash}>
       {hash.url.pathname === "/menu" &&
         <Menu>
           <button>Share</button>
         </Menu>}
-    </HashSubpathProvider>
+    </SubpathProvider>
     <div className="card"
       onContextMenu={menu.onContextMenu}>
       Right-click me

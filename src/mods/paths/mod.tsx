@@ -60,8 +60,14 @@ export function usePathContext() {
 export function PathProvider(props: ChildrenProps & { value: PathHandle }) {
   const { children, value } = props
 
+  const close = useCallback(() => {
+    location.replace(value.go("/"))
+  }, [value])
+
   return <PathContext.Provider value={value}>
-    {children}
+    <CloseContext.Provider value={close}>
+      {children}
+    </CloseContext.Provider>
   </PathContext.Provider>
 }
 
