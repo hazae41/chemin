@@ -57,14 +57,20 @@ export function usePathContext() {
   return Option.wrap(useContext(PathContext))
 }
 
+export function PathProvider(props: ChildrenProps & { value: PathHandle }) {
+  const { children, value } = props
+
+  return <PathContext.Provider value={value}>
+    {children}
+  </PathContext.Provider>
+}
+
 /**
- * Root-based path provider using the modern Navigation API
+ * Root path using the modern Navigation API
  * @param props 
  * @returns 
  */
-export function RootPathProvider(props: ChildrenProps) {
-  const { children } = props
-
+export function usePath(): PathHandle {
   const [raw, setRaw] = useState<string>()
 
   useEffect(() => {
@@ -86,23 +92,17 @@ export function RootPathProvider(props: ChildrenProps) {
     return new URL(hrefOrUrl, location.href)
   }, [])
 
-  const handle = useMemo(() => {
+  return useMemo(() => {
     return { url, get, go } satisfies PathHandle
   }, [url, get, go])
-
-  return <PathContext.Provider value={handle}>
-    {children}
-  </PathContext.Provider>
 }
 
 /**
- * Hash-based subpath provider using the legacy `hashchange`
+ * Hash-based root path using the legacy `hashchange`
  * @param props 
  * @returns 
  */
-export function HashPathProvider(props: ChildrenProps) {
-  const { children } = props
-
+export function useHashPath(): PathHandle {
   const [raw, setRaw] = useState<string>()
 
   useEffect(() => {
@@ -126,12 +126,27 @@ export function HashPathProvider(props: ChildrenProps) {
     return url
   }, [])
 
-  const handle = useMemo(() => {
+  return useMemo(() => {
     return { url, get, go } satisfies PathHandle
   }, [url, get, go])
+}
 
-  return <PathContext.Provider value={handle}>
-    {children}
+/**
+ * Provide a subpath as the path context along with a close context that goes to the root of the subpath
+ * @param props 
+ * @returns 
+ */
+export function SubpathProvider(props: ChildrenProps & { value: PathHandle }) {
+  const { children, value } = props
+
+  const close = useCallback(() => {
+    location.replace(value.go("/"))
+  }, [value])
+
+  return <PathContext.Provider value={value}>
+    <CloseContext.Provider value={close}>
+      {children}
+    </CloseContext.Provider>
   </PathContext.Provider>
 }
 
@@ -158,28 +173,6 @@ export function useHashSubpath(path: PathHandle): PathHandle {
   return useMemo(() => {
     return { url, get, go } satisfies PathHandle
   }, [url, get, go])
-}
-
-/**
- * Provide a hash-based subpath from the current path along with a close context
- * @param props 
- * @returns 
- */
-export function HashSubpathProvider(props: ChildrenProps) {
-  const { children } = props
-
-  const path = usePathContext().getOrThrow()
-  const hash = useHashSubpath(path)
-
-  const onClose = useCallback(() => {
-    location.replace(hash.go("/"))
-  }, [hash])
-
-  return <PathContext.Provider value={hash}>
-    <CloseContext.Provider value={onClose}>
-      {children}
-    </CloseContext.Provider>
-  </PathContext.Provider>
 }
 
 /**
@@ -277,34 +270,12 @@ export function useSearchState(path: PathHandle, key: string) {
 }
 
 /**
- * Provide a search-based subpath from the current path along with a close context
- * @param props 
- * @returns 
- */
-export function SearchSubpathProvider(props: ChildrenProps & { readonly value: string }) {
-  const { children, value } = props
-
-  const path = usePathContext().getOrThrow()
-  const search = useSearchSubpath(path, value)
-
-  const onClose = useCallback(() => {
-    location.replace(search.go("/"))
-  }, [search])
-
-  return <PathContext.Provider value={search}>
-    <CloseContext.Provider value={onClose}>
-      {children}
-    </CloseContext.Provider>
-  </PathContext.Provider>
-}
-
-/**
- * Pass the coordinates of the events to the given URL and replace-navigate to it relative to the given path
+ * Pass the coordinates of HTML anchor events to the given URL and replace-navigate to it relative to the given path
  * @param path 
  * @param hrefOrUrl 
  * @returns 
  */
-export function useCoords(path: PathHandle, hrefOrUrl: Nullable<string | URL>) {
+export function useAnchorWithCoords(path: PathHandle, hrefOrUrl: Nullable<string | URL>) {
   const url = useMemo(() => {
     if (hrefOrUrl == null)
       return
