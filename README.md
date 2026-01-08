@@ -6,7 +6,7 @@ Create infinite virtual subpaths for your React webapp
 npm i @hazae41/chemin
 ```
 
-[**Node Package 📦**](https://www.npmjs.com/package/@hazae41/chemin)
+[**NPM 📦**](https://www.npmjs.com/package/@hazae41/chemin)
 
 ## Features
 
