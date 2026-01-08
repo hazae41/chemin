@@ -487,14 +487,14 @@ import { useCloseContext } from "@hazae41/chemin"
 function Dialog(props: ChildrenProps) {
   const { children } = props
 
-  const close = useCloseContext().unwrap()
+  const close = useCloseContext().getOrThrow()
 
-  const onClose = useCallback(() => {
+  const onClick = useCallback(() => {
     close()
   }, [close])
   
   return <div>
-    <button onClick={onClose}>
+    <button onClick={onClick}>
       Close
     </button>
     <div>
