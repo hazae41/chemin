@@ -280,7 +280,7 @@ export function SecretRouter() {
 }
 
 export function HomePage() {
-  const path = usePathContext().unwrap()
+  const path = usePathContext().getOrThrow()
   const hash = useHashSubpath(path)
 
   const onSecretButtonClick = useCallback(() => {
@@ -326,7 +326,7 @@ export function PanelRouter() {
 }
 
 export function Home() {
-  const path = usePathContext().unwrap()
+  const path = usePathContext().getOrThrow()
 
   const left = useSearchSubpath(path, "left")
   const right = useSearchSubpath(path, "right")
@@ -402,7 +402,7 @@ You can use `useAnchorWithCoords(path, url)` with an HTML anchor element to pass
 
 ```tsx
 function Page() {
-  const path = usePathContext().unwrap()
+  const path = usePathContext().getOrThrow()
   const hash = useHashSubpath(path)
 
   const settings = useAnchorWithCoords(hash, "/settings")
@@ -449,7 +449,7 @@ You can also navigate on right-click using `onContextMenu`
 
 ```tsx
 function Page() {
-  const path = usePathContext().unwrap()
+  const path = usePathContext().getOrThrow()
   const hash = useHashSubpath(path)
 
   const menu = useCoords(hash, "/menu")
