@@ -244,7 +244,7 @@ export function useSearchValue(path: PathHandle, key: string) {
  * @param key 
  * @returns 
  */
-export function useSearchState(path: PathHandle, key: string) {
+export function useSearchState(path: PathHandle, key: string): State<Nullable<string>> {
   const state = useMemo(() => {
     return path.get().searchParams.get(key)
   }, [path, key])
@@ -272,7 +272,7 @@ export function useSearchState(path: PathHandle, key: string) {
     setStateRef.current?.(action)
   }, [])
 
-  return [state, setState] satisfies State<Nullable<string>>
+  return [state, setState]
 }
 
 /**
