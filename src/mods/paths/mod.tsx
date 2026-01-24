@@ -138,13 +138,13 @@ export function useHashPath(): PathHandle {
 
   const go = useCallback((hrefOrUrl: string | URL) => {
     const url = new URL(location.href)
-    url.hash = `#${pathOf(hrefOrUrl)}`
+    url.hash = pathOf(hrefOrUrl)
     return url
   }, [])
 
   const as = useCallback((hrefOrUrl: string | URL) => {
     const url = new URL(location.pathname, location.href)
-    url.hash = `#${pathOf(hrefOrUrl)}`
+    url.hash = pathOf(hrefOrUrl)
     return url
   }, [])
 
@@ -188,13 +188,13 @@ export function useHashSubpath(path: PathHandle): PathHandle {
 
   const go = useCallback((hrefOrUrl: string | URL) => {
     const url = path.get()
-    url.hash = `#${pathOf(hrefOrUrl)}`
+    url.hash = pathOf(hrefOrUrl)
     return path.go(url)
   }, [path])
 
   const as = useCallback((hrefOrUrl: string | URL) => {
     const url = new URL("/", path.get())
-    url.hash = `#${pathOf(hrefOrUrl)}`
+    url.hash = pathOf(hrefOrUrl)
     return path.as(url)
   }, [path])
 
@@ -227,7 +227,7 @@ export function useSearchSubpath(path: PathHandle, key: string): PathHandle {
   const as = useCallback((hrefOrUrl: string) => {
     const url = new URL("/", path.get())
     url.searchParams.set(key, pathOf(hrefOrUrl))
-    return path.go(url)
+    return path.as(url)
   }, [key, path])
 
   return useMemo(() => {
@@ -309,7 +309,7 @@ export function useSearchState(path: PathHandle, key: string): State<Nullable<st
  * @param hrefOrUrl 
  * @returns 
  */
-export function useAnchorWithCoords(path: PathHandle, hrefOrUrl: Nullable<string | URL>) {
+export function useAnchorWithCoords(path: PathHandle, hrefOrUrl: string | URL) {
   const [client, setClient] = useState(false)
 
   useEffect(() => {
@@ -317,8 +317,6 @@ export function useAnchorWithCoords(path: PathHandle, hrefOrUrl: Nullable<string
   }, [])
 
   const url = useMemo(() => {
-    if (hrefOrUrl == null)
-      return
     if (!client)
       return path.as(hrefOrUrl)
     return path.go(hrefOrUrl)
@@ -326,8 +324,6 @@ export function useAnchorWithCoords(path: PathHandle, hrefOrUrl: Nullable<string
 
   const onClick = useCallback((e: MouseEvent) => {
     if (e.button !== 0)
-      return
-    if (hrefOrUrl == null)
       return
 
     e.preventDefault()
@@ -341,8 +337,6 @@ export function useAnchorWithCoords(path: PathHandle, hrefOrUrl: Nullable<string
   const onKeyDown = useCallback((e: KeyboardEvent) => {
     if (e.key !== "Enter")
       return
-    if (hrefOrUrl == null)
-      return
 
     e.preventDefault()
 
@@ -355,9 +349,6 @@ export function useAnchorWithCoords(path: PathHandle, hrefOrUrl: Nullable<string
   }, [hrefOrUrl, path])
 
   const onContextMenu = useCallback((e: MouseEvent) => {
-    if (hrefOrUrl == null)
-      return
-
     e.preventDefault()
 
     const x = e.clientX
