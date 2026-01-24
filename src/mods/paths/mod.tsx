@@ -319,7 +319,8 @@ export function useAnchorWithCoords(path: PathHandle, hrefOrUrl: string | URL) {
   const url = useMemo(() => {
     if (!client)
       return path.as(hrefOrUrl)
-    return path.go(hrefOrUrl)
+    else
+      return path.go(hrefOrUrl)
   }, [hrefOrUrl, path, client])
 
   const onClick = useCallback((e: MouseEvent) => {
