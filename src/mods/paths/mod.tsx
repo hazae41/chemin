@@ -2,6 +2,7 @@
 
 /// <reference lib="dom" />
 
+import { useClient } from "@/libs/client/mod.ts"
 import { Nullable } from "@/libs/nullable/mod.ts"
 import { ChildrenProps, Setter, State } from "@/libs/react/mod.ts"
 import { hashAsUrl, pathOf, searchAsUrl, urlOf } from "@/libs/url/mod.ts"
@@ -310,11 +311,7 @@ export function useSearchState(path: PathHandle, key: string): State<Nullable<st
  * @returns 
  */
 export function useAnchorWithCoords(path: PathHandle, hrefOrUrl: string | URL) {
-  const [client, setClient] = useState(false)
-
-  useEffect(() => {
-    setClient(true)
-  }, [])
+  const client = useClient()
 
   const url = useMemo(() => {
     if (!client)
