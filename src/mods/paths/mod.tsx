@@ -143,7 +143,7 @@ export function useHashPath(): PathHandle {
   }, [])
 
   const as = useCallback((hrefOrUrl: string | URL) => {
-    const url = new URL(location.href)
+    const url = new URL(location.pathname, location.href)
     url.hash = `#${pathOf(hrefOrUrl)}`
     return url
   }, [])
