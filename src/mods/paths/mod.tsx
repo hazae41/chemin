@@ -4,12 +4,11 @@
 
 import { useClient } from "@/libs/client/mod.ts"
 import { Nullable } from "@/libs/nullable/mod.ts"
-import { ChildrenProps, Setter, State } from "@/libs/react/mod.ts"
 import { hashAsUrl, pathOf, searchAsUrl, urlOf } from "@/libs/url/mod.ts"
 import { CloseContext } from "@hazae41/react-close-context"
 import { Option } from "@hazae41/result-and-option"
 import * as React from "react"
-import { createContext, KeyboardEvent, MouseEvent, SetStateAction, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react"
+import { createContext, Dispatch, KeyboardEvent, MouseEvent, ReactNode, SetStateAction, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react"
 
 React;
 
@@ -64,7 +63,7 @@ export function usePathContext() {
   return Option.wrap(useContext(PathContext))
 }
 
-export function PathProvider(props: ChildrenProps & { value: PathHandle }) {
+export function PathProvider(props: { children?: ReactNode } & { value: PathHandle }) {
   const { children, value } = props
 
   const close = useCallback(() => {
@@ -159,7 +158,7 @@ export function useHashPath(): PathHandle {
  * @param props 
  * @returns 
  */
-export function SubpathProvider(props: ChildrenProps & { value: PathHandle }) {
+export function SubpathProvider(props: { children?: ReactNode } & { value: PathHandle }) {
   const { children, value } = props
 
   const close = useCallback(() => {
@@ -273,21 +272,21 @@ export function useSearchValue(path: PathHandle, key: string) {
  * @param key 
  * @returns 
  */
-export function useSearchState(path: PathHandle, key: string): State<Nullable<string>> {
+export function useSearchState(path: PathHandle, key: string) {
   const state = useMemo(() => {
     return path.get().searchParams.get(key)
   }, [path, key])
 
-  const setStateRef = useRef<Setter<Nullable<string>>>(null)
+  const setStateRef = useRef<Dispatch<SetStateAction<Nullable<string>>>>(null)
 
-  setStateRef.current = useCallback((action: SetStateAction<Nullable<string>>) => {
+  setStateRef.current = useCallback((value: SetStateAction<Nullable<string>>) => {
     const url = path.get()
 
     const prev = url.searchParams.get(key)
 
-    const next = typeof action === "function"
-      ? action(prev)
-      : action
+    const next = typeof value === "function"
+      ? value(prev)
+      : value
 
     if (next == null)
       url.searchParams.delete(key)
@@ -297,11 +296,11 @@ export function useSearchState(path: PathHandle, key: string): State<Nullable<st
     location.replace(path.go(url))
   }, [key, path])
 
-  const setState = useCallback((action: SetStateAction<Nullable<string>>) => {
-    setStateRef.current?.(action)
+  const setState = useCallback((value: SetStateAction<Nullable<string>>) => {
+    setStateRef.current?.(value)
   }, [])
 
-  return [state, setState]
+  return [state, setState] as const
 }
 
 /**
