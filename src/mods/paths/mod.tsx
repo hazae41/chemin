@@ -325,8 +325,10 @@ export function useCoords(path: PathHandle, hrefOrUrl: string | URL) {
 
     e.preventDefault()
 
-    const x = e.clientX
-    const y = e.clientY
+    const box = e.currentTarget.getBoundingClientRect()
+
+    const x = box.x + (box.width / 2)
+    const y = box.y + (box.height / 2)
 
     location.replace(path.go(urlOf(hrefOrUrl, { x, y })))
   }, [hrefOrUrl, path])
@@ -348,8 +350,10 @@ export function useCoords(path: PathHandle, hrefOrUrl: string | URL) {
   const onContextMenu = useCallback((e: MouseEvent) => {
     e.preventDefault()
 
-    const x = e.clientX
-    const y = e.clientY
+    const box = e.currentTarget.getBoundingClientRect()
+
+    const x = box.x + (box.width / 2)
+    const y = box.y + (box.height / 2)
 
     location.replace(path.go(urlOf(hrefOrUrl, { x, y })))
   }, [hrefOrUrl, path])
