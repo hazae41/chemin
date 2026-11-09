@@ -8,7 +8,7 @@ import { hashAsUrl, pathOf, searchAsUrl, urlOf } from "@/libs/url/mod.ts"
 import { CloseContext } from "@hazae41/react-close-context"
 import { Option } from "@hazae41/result-and-option"
 import * as React from "react"
-import { createContext, Dispatch, KeyboardEvent, MouseEvent, ReactNode, SetStateAction, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react"
+import { createContext, Dispatch, KeyboardEvent, MouseEvent, ReactNode, SetStateAction, SubmitEvent, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react"
 
 React;
 
@@ -354,7 +354,18 @@ export function useAnchorWithCoords(path: PathHandle, hrefOrUrl: string | URL) {
     location.replace(path.go(urlOf(hrefOrUrl, { x, y })))
   }, [hrefOrUrl, path])
 
+  const onSubmit = useCallback((e: SubmitEvent) => {
+    e.preventDefault()
+
+    const box = e.currentTarget.getBoundingClientRect()
+
+    const x = box.x + (box.width / 2)
+    const y = box.y + (box.height / 2)
+
+    location.replace(path.go(urlOf(hrefOrUrl, { x, y })))
+  }, [hrefOrUrl, path])
+
   return useMemo(() => {
-    return { onClick, onKeyDown, onContextMenu, url }
-  }, [onClick, onKeyDown, onContextMenu, url])
+    return { url, onClick, onKeyDown, onContextMenu, onSubmit }
+  }, [url, onClick, onKeyDown, onContextMenu, onSubmit])
 }
