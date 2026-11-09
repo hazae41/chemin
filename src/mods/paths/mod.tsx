@@ -304,12 +304,12 @@ export function useSearchState(path: PathHandle, key: string) {
 }
 
 /**
- * Pass the coordinates of HTML anchor events to the given URL and replace-navigate to it relative to the given path
+ * Pass the coordinates of HTML events to the given URL and replace-navigate to it relative to the given path
  * @param path 
  * @param hrefOrUrl 
  * @returns 
  */
-export function useAnchorWithCoords(path: PathHandle, hrefOrUrl: string | URL) {
+export function useCoords(path: PathHandle, hrefOrUrl: string | URL) {
   const client = useClient()
 
   const url = useMemo(() => {
