@@ -281,7 +281,7 @@ export function useSearchState(path: PathHandle, key: string) {
  * @param hrefOrUrl 
  * @returns 
  */
-export function useLink(path: PathHandle, hrefOrUrl: string | URL) {
+export function useLinkWithCoords(path: PathHandle, hrefOrUrl: string | URL) {
   const url = useMemo(() => {
     return path.go(hrefOrUrl)
   }, [hrefOrUrl, path])
@@ -294,8 +294,19 @@ export function useLink(path: PathHandle, hrefOrUrl: string | URL) {
 
     const box = e.currentTarget.getBoundingClientRect()
 
-    const x = box.x + (box.width / 2)
-    const y = box.y + (box.height / 2)
+    const x = e.clientX || (box.x + (box.width / 2))
+    const y = e.clientY || (box.y + (box.height / 2))
+
+    location.replace(path.go(urlOf(hrefOrUrl, { x, y })))
+  }, [hrefOrUrl, path])
+
+  const onContextMenu = useCallback((e: MouseEvent) => {
+    e.preventDefault()
+
+    const box = e.currentTarget.getBoundingClientRect()
+
+    const x = e.clientX || (box.x + (box.width / 2))
+    const y = e.clientY || (box.y + (box.height / 2))
 
     location.replace(path.go(urlOf(hrefOrUrl, { x, y })))
   }, [hrefOrUrl, path])
@@ -304,17 +315,6 @@ export function useLink(path: PathHandle, hrefOrUrl: string | URL) {
     if (e.key !== "Enter")
       return
 
-    e.preventDefault()
-
-    const box = e.currentTarget.getBoundingClientRect()
-
-    const x = box.x + (box.width / 2)
-    const y = box.y + (box.height / 2)
-
-    location.replace(path.go(urlOf(hrefOrUrl, { x, y })))
-  }, [hrefOrUrl, path])
-
-  const onContextMenu = useCallback((e: MouseEvent) => {
     e.preventDefault()
 
     const box = e.currentTarget.getBoundingClientRect()
