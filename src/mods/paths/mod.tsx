@@ -286,7 +286,7 @@ export function useLinkWithCoords(path: PathHandle, hrefOrUrl: string | URL) {
    * Relative URL for routing
    */
   const rel = useMemo(() => {
-    return new URL(hrefOrUrl, path.go("/"))
+    return new URL(hrefOrUrl, location.href)
   }, [hrefOrUrl, path])
 
   /**
