@@ -14,6 +14,7 @@ React;
 declare const navigation: Nullable<any>
 
 export interface PathHandle {
+
   /**
    * The current relative URL
    */
@@ -154,7 +155,7 @@ export function useHashSubpath(path: PathHandle): PathHandle {
   }, [path])
 
   const go = useCallback((hrefOrUrl: string | URL) => {
-    const url = path.url
+    const url = new URL(path.url)
     url.hash = pathOf(hrefOrUrl)
     return path.go(url)
   }, [path])
@@ -176,7 +177,7 @@ export function useSearchSubpath(path: PathHandle, key: string): PathHandle {
   }, [key, path])
 
   const go = useCallback((hrefOrUrl: string) => {
-    const url = path.url
+    const url = new URL(path.url)
     url.searchParams.set(key, pathOf(hrefOrUrl))
     return path.go(url)
   }, [key, path])
@@ -202,7 +203,7 @@ export function useSearchValue(path: PathHandle, key: string) {
   }, [get])
 
   const set = useCallback((value: Nullable<string>) => {
-    const url = path.url
+    const url = new URL(path.url)
 
     if (value == null)
       url.searchParams.delete(key)
@@ -231,7 +232,7 @@ export function useSearchState(path: PathHandle, key: string) {
   const setStateRef = useRef<Dispatch<SetStateAction<Nullable<string>>>>(null)
 
   setStateRef.current = useCallback((value: SetStateAction<Nullable<string>>) => {
-    const url = path.url
+    const url = new URL(path.url)
 
     const prev = url.searchParams.get(key)
 
