@@ -254,13 +254,35 @@ export function useSearchState(path: PathHandle, key: string) {
   return [state, setState] as const
 }
 
+export interface LinkWithCoords {
+
+  /**
+   * Relative URL for routing
+   */
+  readonly rel: URL
+
+  /**
+   * Absolute URL for navigating
+   */
+  readonly abs: URL
+
+  onClick(e: MouseEvent): void
+
+  onContextMenu(e: MouseEvent): void
+
+  onKeyDown(e: KeyboardEvent): void
+
+  onSubmit(e: SubmitEvent): void
+
+}
+
 /**
  * Pass the coordinates of HTML events to the given URL and replace-navigate to it relative to the given path
  * @param path 
  * @param hrefOrUrl 
  * @returns 
  */
-export function useLinkWithCoords(path: PathHandle, hrefOrUrl: string | URL) {
+export function useLinkWithCoords(path: PathHandle, hrefOrUrl: string | URL): LinkWithCoords {
   const rel = useMemo(() => {
     return new URL(hrefOrUrl, location.href)
   }, [hrefOrUrl, path])
@@ -320,6 +342,6 @@ export function useLinkWithCoords(path: PathHandle, hrefOrUrl: string | URL) {
   }, [hrefOrUrl, path])
 
   return useMemo(() => {
-    return { rel, abs, onClick, onKeyDown, onContextMenu, onSubmit }
+    return { rel, abs, onClick, onKeyDown, onContextMenu, onSubmit } satisfies LinkWithCoords
   }, [rel, abs, onClick, onKeyDown, onContextMenu, onSubmit])
 }
