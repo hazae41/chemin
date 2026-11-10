@@ -261,16 +261,10 @@ export function useSearchState(path: PathHandle, key: string) {
  * @returns 
  */
 export function useLinkWithCoords(path: PathHandle, hrefOrUrl: string | URL) {
-  /**
-   * Relative URL for routing
-   */
   const rel = useMemo(() => {
     return new URL(hrefOrUrl, location.href)
   }, [hrefOrUrl, path])
 
-  /**
-   * Absolute URL for navigating
-   */
   const abs = useMemo(() => {
     return path.go(hrefOrUrl)
   }, [hrefOrUrl, path])
