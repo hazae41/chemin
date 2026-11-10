@@ -282,7 +282,17 @@ export function useSearchState(path: PathHandle, key: string) {
  * @returns 
  */
 export function useLinkWithCoords(path: PathHandle, hrefOrUrl: string | URL) {
-  const url = useMemo(() => {
+  /**
+   * Relative URL for routing
+   */
+  const rel = useMemo(() => {
+    return new URL(hrefOrUrl, path.go("/"))
+  }, [hrefOrUrl, path])
+
+  /**
+   * Absolute URL for navigating
+   */
+  const abs = useMemo(() => {
     return path.go(hrefOrUrl)
   }, [hrefOrUrl, path])
 
@@ -337,6 +347,6 @@ export function useLinkWithCoords(path: PathHandle, hrefOrUrl: string | URL) {
   }, [hrefOrUrl, path])
 
   return useMemo(() => {
-    return { url, onClick, onKeyDown, onContextMenu, onSubmit }
-  }, [url, onClick, onKeyDown, onContextMenu, onSubmit])
+    return { rel, abs, onClick, onKeyDown, onContextMenu, onSubmit }
+  }, [rel, abs, onClick, onKeyDown, onContextMenu, onSubmit])
 }
