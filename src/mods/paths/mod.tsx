@@ -21,6 +21,11 @@ export interface PathHandle {
   readonly url: URL
 
   /**
+   * The pending relative URL
+   */
+  get(): URL
+
+  /**
    * Get the absolute URL if we would go to the given relative URL
    * @param hrefOrUrl
    */
@@ -82,17 +87,21 @@ export function usePath(): PathHandle {
     return () => navigation?.removeEventListener("currententrychange", onCurrentEntryChange)
   }, [])
 
-  const url = useMemo(() => {
+  const get = useCallback(() => {
     return new URL(location.href)
   }, [raw])
+
+  const url = useMemo(() => {
+    return get()
+  }, [get])
 
   const go = useCallback((hrefOrUrl: string | URL) => {
     return new URL(hrefOrUrl, location.href)
   }, [])
 
   return useMemo(() => {
-    return { url, go } satisfies PathHandle
-  }, [url, go])
+    return { url, get, go } satisfies PathHandle
+  }, [url, get, go])
 }
 
 /**
@@ -110,9 +119,13 @@ export function useHashPath(): PathHandle {
     return () => removeEventListener("hashchange", onHashChange)
   }, [])
 
-  const url = useMemo(() => {
+  const get = useCallback(() => {
     return hashAsUrl(location.href)
   }, [raw])
+
+  const url = useMemo(() => {
+    return get()
+  }, [get])
 
   const go = useCallback((hrefOrUrl: string | URL) => {
     const url = new URL(location.href)
@@ -121,8 +134,8 @@ export function useHashPath(): PathHandle {
   }, [])
 
   return useMemo(() => {
-    return { url, go } satisfies PathHandle
-  }, [url, go])
+    return { url, get, go } satisfies PathHandle
+  }, [url, get, go])
 }
 
 /**
@@ -150,19 +163,23 @@ export function SubpathProvider(props: { children?: ReactNode } & { value: PathH
  * @returns 
  */
 export function useHashSubpath(path: PathHandle): PathHandle {
-  const url = useMemo(() => {
-    return hashAsUrl(path.url)
+  const get = useCallback(() => {
+    return hashAsUrl(path.get())
   }, [path])
 
+  const url = useMemo(() => {
+    return get()
+  }, [get])
+
   const go = useCallback((hrefOrUrl: string | URL) => {
-    const url = new URL(path.url)
+    const url = path.get()
     url.hash = pathOf(hrefOrUrl)
     return path.go(url)
   }, [path])
 
   return useMemo(() => {
-    return { url, go } satisfies PathHandle
-  }, [url, go])
+    return { url, get, go } satisfies PathHandle
+  }, [url, get, go])
 }
 
 /**
@@ -172,19 +189,23 @@ export function useHashSubpath(path: PathHandle): PathHandle {
  * @returns 
  */
 export function useSearchSubpath(path: PathHandle, key: string): PathHandle {
-  const url = useMemo(() => {
-    return searchAsUrl(path.url, key)
+  const get = useCallback(() => {
+    return searchAsUrl(path.get(), key)
   }, [key, path])
 
+  const url = useMemo(() => {
+    return get()
+  }, [get])
+
   const go = useCallback((hrefOrUrl: string) => {
-    const url = new URL(path.url)
+    const url = path.get()
     url.searchParams.set(key, pathOf(hrefOrUrl))
     return path.go(url)
   }, [key, path])
 
   return useMemo(() => {
-    return { url, go } satisfies PathHandle
-  }, [url, go])
+    return { url, get, go } satisfies PathHandle
+  }, [url, get, go])
 }
 
 /**
@@ -195,7 +216,7 @@ export function useSearchSubpath(path: PathHandle, key: string): PathHandle {
  */
 export function useSearchValue(path: PathHandle, key: string) {
   const get = useCallback(() => {
-    return path.url.searchParams.get(key)
+    return path.get().searchParams.get(key)
   }, [key, path])
 
   const value = useMemo(() => {
@@ -203,7 +224,7 @@ export function useSearchValue(path: PathHandle, key: string) {
   }, [get])
 
   const set = useCallback((value: Nullable<string>) => {
-    const url = new URL(path.url)
+    const url = path.get()
 
     if (value == null)
       url.searchParams.delete(key)
@@ -226,13 +247,13 @@ export function useSearchValue(path: PathHandle, key: string) {
  */
 export function useSearchState(path: PathHandle, key: string) {
   const state = useMemo(() => {
-    return path.url.searchParams.get(key)
+    return path.get().searchParams.get(key)
   }, [path, key])
 
   const setStateRef = useRef<Dispatch<SetStateAction<Nullable<string>>>>(null)
 
   setStateRef.current = useCallback((value: SetStateAction<Nullable<string>>) => {
-    const url = new URL(path.url)
+    const url = path.get()
 
     const prev = url.searchParams.get(key)
 
@@ -283,7 +304,7 @@ export interface LinkWithCoords {
  * @param hrefOrUrl 
  * @returns 
  */
-export function useLinkWithCoords(path: PathHandle, hrefOrUrl: string | URL): LinkWithCoords {
+export function useLinkWithCoords(path: PathHandle, hrefOrUrl: string | URL) {
   const rel = useMemo(() => {
     return new URL(hrefOrUrl, location.href)
   }, [hrefOrUrl, path])
@@ -343,6 +364,6 @@ export function useLinkWithCoords(path: PathHandle, hrefOrUrl: string | URL): Li
   }, [hrefOrUrl, path])
 
   return useMemo(() => {
-    return { rel, abs, onClick, onKeyDown, onContextMenu, onSubmit } satisfies LinkWithCoords
+    return { rel, abs, onClick, onKeyDown, onContextMenu, onSubmit }
   }, [rel, abs, onClick, onKeyDown, onContextMenu, onSubmit])
 }
