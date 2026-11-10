@@ -32,6 +32,7 @@
     "typescript": "^7.0.2"
   },
   "peerDependencies": {
+    "@hazae41/react-client-context": ">=1.0.1",
     "@hazae41/react-close-context": ">=1.0.5",
     "react": ">=19.3.1"
   },

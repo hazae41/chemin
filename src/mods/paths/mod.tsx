@@ -4,6 +4,7 @@
 
 import { Nullable } from "@/libs/nullable/mod.ts"
 import { hashAsUrl, pathOf, searchAsUrl, urlOf } from "@/libs/url/mod.ts"
+import { useClientContext } from "@hazae41/react-client-context"
 import { CloseContext } from "@hazae41/react-close-context"
 import { Option } from "@hazae41/result-and-option"
 import * as React from "react"
@@ -14,7 +15,6 @@ React;
 declare const navigation: Nullable<any>
 
 export interface PathHandle {
-
   /**
    * The current relative URL
    */
@@ -31,6 +31,11 @@ export interface PathHandle {
    */
   go(hrefOrUrl: string | URL): URL
 
+  /**
+   * Get the absolute URL if we would go to the given relative URL without keeping the current path
+   * @param hrefOrUrl
+   */
+  as(hrefOrUrl: string | URL): URL
 }
 
 export interface ValueHandle {
@@ -99,9 +104,13 @@ export function usePath(): PathHandle {
     return new URL(hrefOrUrl, location.href)
   }, [])
 
+  const as = useCallback((hrefOrUrl: string | URL) => {
+    return new URL(hrefOrUrl, location.href)
+  }, [])
+
   return useMemo(() => {
-    return { url, get, go } satisfies PathHandle
-  }, [url, get, go])
+    return { url, get, go, as } satisfies PathHandle
+  }, [url, get, go, as])
 }
 
 /**
@@ -133,9 +142,15 @@ export function useHashPath(): PathHandle {
     return url
   }, [])
 
+  const as = useCallback((hrefOrUrl: string | URL) => {
+    const url = new URL(location.href)
+    url.hash = pathOf(hrefOrUrl)
+    return url
+  }, [])
+
   return useMemo(() => {
-    return { url, get, go } satisfies PathHandle
-  }, [url, get, go])
+    return { url, get, go, as } satisfies PathHandle
+  }, [url, get, go, as])
 }
 
 /**
@@ -177,9 +192,15 @@ export function useHashSubpath(path: PathHandle): PathHandle {
     return path.go(url)
   }, [path])
 
+  const as = useCallback((hrefOrUrl: string | URL) => {
+    const url = new URL("/", path.get())
+    url.hash = pathOf(hrefOrUrl)
+    return path.as(url)
+  }, [path])
+
   return useMemo(() => {
-    return { url, get, go } satisfies PathHandle
-  }, [url, get, go])
+    return { url, get, go, as } satisfies PathHandle
+  }, [url, get, go, as])
 }
 
 /**
@@ -203,9 +224,15 @@ export function useSearchSubpath(path: PathHandle, key: string): PathHandle {
     return path.go(url)
   }, [key, path])
 
+  const as = useCallback((hrefOrUrl: string) => {
+    const url = new URL("/", path.get())
+    url.searchParams.set(key, pathOf(hrefOrUrl))
+    return path.as(url)
+  }, [key, path])
+
   return useMemo(() => {
-    return { url, get, go } satisfies PathHandle
-  }, [url, get, go])
+    return { url, get, go, as } satisfies PathHandle
+  }, [url, get, go, as])
 }
 
 /**
@@ -305,13 +332,18 @@ export interface LinkWithCoords {
  * @returns 
  */
 export function useLinkWithCoords(path: PathHandle, hrefOrUrl: string | URL) {
+  const client = useClientContext().getOrThrow()
+
   const rel = useMemo(() => {
     return new URL(hrefOrUrl, location.href)
   }, [hrefOrUrl, path])
 
   const abs = useMemo(() => {
-    return path.go(hrefOrUrl)
-  }, [hrefOrUrl, path])
+    if (!client)
+      return path.as(hrefOrUrl)
+    else
+      return path.go(hrefOrUrl)
+  }, [hrefOrUrl, path, client])
 
   const onClick = useCallback((e: MouseEvent) => {
     if (e.button !== 0)
