@@ -2,7 +2,6 @@
 
 /// <reference lib="dom" />
 
-import { useClient } from "@/libs/client/mod.ts"
 import { Nullable } from "@/libs/nullable/mod.ts"
 import { hashAsUrl, pathOf, searchAsUrl, urlOf } from "@/libs/url/mod.ts"
 import { CloseContext } from "@hazae41/react-close-context"
@@ -31,11 +30,6 @@ export interface PathHandle {
    */
   go(hrefOrUrl: string | URL): URL
 
-  /**
-   * Get the absolute URL if we would go to the given relative URL without keeping the current path
-   * @param hrefOrUrl
-   */
-  as(hrefOrUrl: string | URL): URL
 }
 
 export interface ValueHandle {
@@ -104,13 +98,9 @@ export function usePath(): PathHandle {
     return new URL(hrefOrUrl, location.href)
   }, [])
 
-  const as = useCallback((hrefOrUrl: string | URL) => {
-    return new URL(hrefOrUrl, location.href)
-  }, [])
-
   return useMemo(() => {
-    return { url, get, go, as } satisfies PathHandle
-  }, [url, get, go, as])
+    return { url, get, go } satisfies PathHandle
+  }, [url, get, go])
 }
 
 /**
@@ -142,15 +132,9 @@ export function useHashPath(): PathHandle {
     return url
   }, [])
 
-  const as = useCallback((hrefOrUrl: string | URL) => {
-    const url = new URL(location.href)
-    url.hash = pathOf(hrefOrUrl)
-    return url
-  }, [])
-
   return useMemo(() => {
-    return { url, get, go, as } satisfies PathHandle
-  }, [url, get, go, as])
+    return { url, get, go } satisfies PathHandle
+  }, [url, get, go])
 }
 
 /**
@@ -192,15 +176,9 @@ export function useHashSubpath(path: PathHandle): PathHandle {
     return path.go(url)
   }, [path])
 
-  const as = useCallback((hrefOrUrl: string | URL) => {
-    const url = new URL("/", path.get())
-    url.hash = pathOf(hrefOrUrl)
-    return path.as(url)
-  }, [path])
-
   return useMemo(() => {
-    return { url, get, go, as } satisfies PathHandle
-  }, [url, get, go, as])
+    return { url, get, go } satisfies PathHandle
+  }, [url, get, go])
 }
 
 /**
@@ -224,15 +202,9 @@ export function useSearchSubpath(path: PathHandle, key: string): PathHandle {
     return path.go(url)
   }, [key, path])
 
-  const as = useCallback((hrefOrUrl: string) => {
-    const url = new URL("/", path.get())
-    url.searchParams.set(key, pathOf(hrefOrUrl))
-    return path.as(url)
-  }, [key, path])
-
   return useMemo(() => {
-    return { url, get, go, as } satisfies PathHandle
-  }, [url, get, go, as])
+    return { url, get, go } satisfies PathHandle
+  }, [url, get, go])
 }
 
 /**
@@ -309,15 +281,10 @@ export function useSearchState(path: PathHandle, key: string) {
  * @param hrefOrUrl 
  * @returns 
  */
-export function useCoords(path: PathHandle, hrefOrUrl: string | URL) {
-  const client = useClient()
-
+export function useLink(path: PathHandle, hrefOrUrl: string | URL) {
   const url = useMemo(() => {
-    if (!client)
-      return path.as(hrefOrUrl)
-    else
-      return path.go(hrefOrUrl)
-  }, [hrefOrUrl, path, client])
+    return path.go(hrefOrUrl)
+  }, [hrefOrUrl, path])
 
   const onClick = useCallback((e: MouseEvent) => {
     if (e.button !== 0)
